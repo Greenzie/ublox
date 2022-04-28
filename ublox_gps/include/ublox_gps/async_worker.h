@@ -61,7 +61,7 @@ class AsyncWorker : public Worker {
    */
   AsyncWorker(boost::shared_ptr<StreamT> stream,
               boost::shared_ptr<boost::asio::io_service> io_service,
-              std::size_t buffer_size = 8192);
+              std::size_t buffer_size = 16384);
   virtual ~AsyncWorker();
 
   /**

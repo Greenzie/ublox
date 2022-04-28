@@ -533,8 +533,11 @@ bool Gps::setUseAdr(bool enable, float protocol_version) {
 }
 
 bool Gps::sendRtcm(const std::vector<uint8_t>& rtcm){
-  worker_->send(rtcm.data(), rtcm.size());
-  return true;
+  return worker_->send(rtcm.data(), rtcm.size());
+}
+
+bool Gps::sendSpartn(const std::vector<uint8_t>& message){
+  return worker_->send(message.data(), message.size());
 }
 
 bool Gps::poll(uint8_t class_id, uint8_t message_id,
