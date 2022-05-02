@@ -246,6 +246,42 @@ void Gps::initializeTcp(std::string host, std::string port) {
                                                     io_service)));
 }
 
+void Gps::initializeUdp(std::string host, std::string port) {
+  host_ = host;
+  port_ = port;
+  boost::shared_ptr<boost::asio::io_service> io_service(
+      new boost::asio::io_service);
+  boost::asio::ip::udp::resolver::iterator endpoint;
+
+  try {
+    boost::asio::ip::udp::resolver resolver(*io_service);
+    endpoint =
+        resolver.resolve(boost::asio::ip::udp::resolver::query(host, port));
+  } catch (std::runtime_error& e) {
+    throw std::runtime_error("U-Blox: Could not resolve" + host + " " +
+                             port + " " + e.what());
+  }
+
+  boost::shared_ptr<boost::asio::ip::udp::socket> socket(
+    new boost::asio::ip::udp::socket(*io_service));
+
+  try {
+    socket->connect(*endpoint);
+  } catch (std::runtime_error& e) {
+    throw std::runtime_error("U-Blox: Could not connect to " +
+                             endpoint->host_name() + ":" +
+                             endpoint->service_name() + ": " + e.what());
+  }
+
+  ROS_INFO("U-Blox: Connected to %s:%s.", endpoint->host_name().c_str(),
+           endpoint->service_name().c_str());
+
+  if (worker_) return;
+  setWorker(boost::shared_ptr<Worker>(
+      new AsyncWorker<boost::asio::ip::udp::socket>(socket,
+                                                    io_service)));
+}
+
 void Gps::close() {
   if(save_on_shutdown_) {
     if(saveOnShutdown())
@@ -533,8 +569,11 @@ bool Gps::setUseAdr(bool enable, float protocol_version) {
 }
 
 bool Gps::sendRtcm(const std::vector<uint8_t>& rtcm){
-  worker_->send(rtcm.data(), rtcm.size());
-  return true;
+  return worker_->send(rtcm.data(), rtcm.size());
+}
+
+bool Gps::sendSpartn(const std::vector<uint8_t>& message){
+  return worker_->send(message.data(), message.size());
 }
 
 bool Gps::poll(uint8_t class_id, uint8_t message_id,

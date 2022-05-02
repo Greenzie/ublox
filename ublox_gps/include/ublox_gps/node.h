@@ -50,6 +50,7 @@
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/TimeReference.h>
 #include <sensor_msgs/Imu.h>
+#include <std_msgs/UInt8MultiArray.h>
 // Other U-Blox package includes
 #include <ublox_msgs/ublox_msgs.h>
 // Ublox GPS includes
@@ -489,7 +490,9 @@ typedef boost::shared_ptr<ComponentInterface> ComponentPtr;
  */
 class UbloxNode : public virtual ComponentInterface {
  public:
-  //! how often (in seconds) to call poll messages
+  //! How often (in seconds) to send keep-alive message
+  constexpr static double kKeepAlivePeriod = 10.0;
+  //! How often (in seconds) to call poll messages
   constexpr static double kPollDuration = 1.0;
   // Constants used for diagnostic frequency updater
   //! [s] 5Hz diagnostic period
@@ -578,6 +581,12 @@ class UbloxNode : public virtual ComponentInterface {
    */
   void addProductInterface(std::string product_category,
                            std::string ref_rov = "");
+
+  /**
+   * @brief Poll version message from the U-Blox device to keep socket active.
+   * @param event a timer indicating how often to poll
+   */
+  void keepAlive(const ros::TimerEvent& event);
 
   /**
    * @brief Poll messages from the U-Blox device.
@@ -1340,6 +1349,11 @@ class HpPosRecProduct: public virtual HpgRefProduct {
   void subscribe();
 
  protected:
+
+  /**
+   * @brief Publish a sensor_msgs/NavSatFix message upon receiving a HPPOSLLH UBX message
+   */
+  void callbackNavHpPosLlh(const ublox_msgs::NavHPPOSLLH& m);
 
   /**
    * @brief Set the last received message and call rover diagnostic updater

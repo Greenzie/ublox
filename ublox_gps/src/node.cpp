@@ -119,6 +119,8 @@ void UbloxNode::addProductInterface(std::string product_category,
     components_.push_back(ComponentPtr(new HpgRovProduct));
   else if (product_category.compare("HPG") == 0)
     components_.push_back(ComponentPtr(new HpPosRecProduct));
+  else if (product_category.compare("HDG") == 0)
+    components_.push_back(ComponentPtr(new HpPosRecProduct));
   else if (product_category.compare("TIM") == 0)
     components_.push_back(ComponentPtr(new TimProduct));
   else if (product_category.compare("ADR") == 0 ||
@@ -129,7 +131,7 @@ void UbloxNode::addProductInterface(std::string product_category,
   else if(product_category.compare("SPG") != 0)
     ROS_WARN("Product category %s %s from MonVER message not recognized %s",
              product_category.c_str(), ref_rov.c_str(),
-             "options are HPG REF, HPG ROV, HPG #.#, TIM, ADR, UDR, FTS, SPG");
+             "options are HPG REF, HPG ROV, HPG #.#, HDG #.#, TIM, ADR, UDR, FTS, SPG");
 }
 
 void UbloxNode::getRosParams() {
@@ -227,6 +229,11 @@ void UbloxNode::getRosParams() {
 
   // raw data stream logging 
   rawDataStreamPa_.getRosParams();
+}
+
+void UbloxNode::keepAlive(const ros::TimerEvent& event) {
+  // Poll version message to keep UDP socket active
+  gps.poll(ublox_msgs::MonVER::CLASS_ID, ublox_msgs::MonVER::MESSAGE_ID);
 }
 
 void UbloxNode::pollMessages(const ros::TimerEvent& event) {
@@ -533,6 +540,12 @@ void UbloxNode::initializeIo() {
       ROS_INFO("Connecting to %s://%s:%s ...", proto.c_str(), host.c_str(),
                port.c_str());
       gps.initializeTcp(host, port);
+    } else if (proto == "udp") {
+      std::string host(match[2]);
+      std::string port(match[3]);
+      ROS_INFO("Connecting to %s://%s:%s ...", proto.c_str(), host.c_str(),
+               port.c_str());
+      gps.initializeUdp(host, port);
     } else {
       throw std::runtime_error("Protocol '" + proto + "' is unsupported");
     }
@@ -570,6 +583,14 @@ void UbloxNode::initialize() {
     subscribe();
     // Configure INF messages (needs INF params, call after subscribing)
     configureInf();
+
+    ros::Timer keep_alive;
+    if (device_.substr(0, 6) == "udp://") {
+      // Setup timer to poll version message to keep UDP socket active
+      keep_alive = nh->createTimer(ros::Duration(kKeepAlivePeriod),
+                                   &UbloxNode::keepAlive,
+                                   this);
+    }
 
     ros::Timer poller;
     poller = nh->createTimer(ros::Duration(kPollDuration),
@@ -662,8 +683,8 @@ void UbloxFirmware6::subscribe() {
   // Subscribe to Nav POSLLH
   gps.subscribe<ublox_msgs::NavPOSLLH>(boost::bind(
       &UbloxFirmware6::callbackNavPosLlh, this, _1), kSubscribeRate);
-  gps.subscribe<ublox_msgs::NavSOL>(boost::bind(
   // Subscribe to Nav SOL
+  gps.subscribe<ublox_msgs::NavSOL>(boost::bind(
       &UbloxFirmware6::callbackNavSol, this, _1), kSubscribeRate);
   // Subscribe to Nav VELNED
   gps.subscribe<ublox_msgs::NavVELNED>(boost::bind(
@@ -1635,7 +1656,7 @@ void HpgRovProduct::initializeRosDiagnostics() {
 void HpgRovProduct::carrierPhaseDiagnostics(
     diagnostic_updater::DiagnosticStatusWrapper& stat) {
   uint32_t carr_soln = last_rel_pos_.flags & last_rel_pos_.FLAGS_CARR_SOLN_MASK;
-  stat.add("iTow", last_rel_pos_.iTow);
+  stat.add("iTOW", last_rel_pos_.iTOW);
   if (carr_soln & last_rel_pos_.FLAGS_CARR_SOLN_NONE ||
       !(last_rel_pos_.flags & last_rel_pos_.FLAGS_DIFF_SOLN &&
         last_rel_pos_.flags & last_rel_pos_.FLAGS_REL_POS_VALID)) {
@@ -1680,8 +1701,24 @@ void HpgRovProduct::callbackNavRelPosNed(const ublox_msgs::NavRELPOSNED &m) {
 //
 // U-Blox High Precision Positioning Receiver
 //
-
 void HpPosRecProduct::subscribe() {
+  // Subscribe to Nav High Precision Position ECEF
+  nh->param("publish/nav/hpposecef", enabled["nav_hpposecef"], enabled["nav"]);
+  if (enabled["nav_hpposecef"])
+    gps.subscribe<ublox_msgs::NavHPPOSECEF>(boost::bind(
+        publish<ublox_msgs::NavHPPOSECEF>, _1, "navhpposecef"), kSubscribeRate);
+
+  // Whether to publish the NavSatFix info from Nav High Precision Position LLH
+  nh->param("publish/nav/hp_fix", enabled["nav_hpfix"], enabled["nav"]);
+
+  // Whether to publish the NavSatFix info from Nav High Precision Position LLH
+  nh->param("publish/nav/hpposllh", enabled["nav_hpposllh"], enabled["nav"]);
+
+  // Subscribe to Nav High Precision Position LLH
+  if (enabled["nav_hpposllh"] || enabled["nav_hpfix"])
+    gps.subscribe<ublox_msgs::NavHPPOSLLH>(boost::bind(
+        &HpPosRecProduct::callbackNavHpPosLlh, this, _1), kSubscribeRate);
+
   // Whether to publish Nav Relative Position NED
   nh->param("publish/nav/relposned", enabled["nav_relposned"], enabled["nav"]);
   // Subscribe to Nav Relative Position NED messages (also updates diagnostics)
@@ -1690,6 +1727,45 @@ void HpPosRecProduct::subscribe() {
 
   // Whether to publish the Heading info from Nav Relative Position NED
   nh->param("publish/nav/heading", enabled["nav_heading"], enabled["nav"]);
+}
+
+void HpPosRecProduct::callbackNavHpPosLlh(const ublox_msgs::NavHPPOSLLH& m) {
+  if (enabled["nav_hpposllh"]) {
+    static ros::Publisher publisher =
+        nh->advertise<ublox_msgs::NavHPPOSLLH>("navhpposllh", kROSQueueSize);
+    publisher.publish(m);
+  }
+
+  if (enabled["nav_hpfix"]) {
+    sensor_msgs::NavSatFix fix_msg;
+    static ros::Publisher fixPublisher =
+        nh->advertise<sensor_msgs::NavSatFix>("hp_fix", kROSQueueSize);
+
+    fix_msg.header.stamp = ros::Time::now();
+    fix_msg.header.frame_id = frame_id;
+    fix_msg.latitude = m.lat * 1e-7 + m.latHp * 1e-9;
+    fix_msg.longitude = m.lon * 1e-7 + m.lonHp * 1e-9;
+    fix_msg.altitude = m.height * 1e-3 + m.heightHp * 1e-4;
+
+    if (m.invalid_llh) {
+      fix_msg.status.status = fix_msg.status.STATUS_NO_FIX;
+    } else {
+      fix_msg.status.status = fix_msg.status.STATUS_FIX;
+    }
+
+    // Convert from mm to m
+    const double varH = pow(m.hAcc / 10000.0, 2);
+    const double varV = pow(m.vAcc / 10000.0, 2);
+
+    fix_msg.position_covariance[0] = varH;
+    fix_msg.position_covariance[4] = varH;
+    fix_msg.position_covariance[8] = varV;
+    fix_msg.position_covariance_type =
+        sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+
+    fix_msg.status.service = fix_msg.status.SERVICE_GPS;
+    fixPublisher.publish(fix_msg);
+  }
 }
 
 void HpPosRecProduct::callbackNavRelPosNed(const ublox_msgs::NavRELPOSNED9 &m) {
@@ -1813,10 +1889,15 @@ void rtcmCallback(const rtcm_msgs::Message::ConstPtr &msg) {
   gps.sendRtcm(msg->message);
 }
 
+void spartnCallback(const std_msgs::UInt8MultiArray::ConstPtr &msg) {
+  gps.sendSpartn(msg->data);
+}
+
 int main(int argc, char** argv) {
   ros::init(argc, argv, "ublox_gps");
   nh.reset(new ros::NodeHandle("~"));
   ros::Subscriber subRtcm = nh->subscribe("/rtcm", 10, rtcmCallback);
+  ros::Subscriber subSpartn = nh->subscribe("/spartn", 10, spartnCallback);
   nh->param("debug", ublox_gps::debug, 1);
   if(ublox_gps::debug) {
     if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,

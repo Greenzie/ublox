@@ -36,6 +36,7 @@
 #include <stdexcept>
 // Boost
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ip/udp.hpp>
 #include <boost/asio/serial_port.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/atomic.hpp>
@@ -97,6 +98,13 @@ class Gps {
   void initializeTcp(std::string host, std::string port);
 
   /**
+   * @brief Initialize UDP I/O.
+   * @param host the UDP host
+   * @param port the UDP port
+   */
+  void initializeUdp(std::string host, std::string port);
+
+  /**
    * @brief Initialize the Serial I/O port.
    * @param port the device port address
    * @param baudrate the desired baud rate of the port
@@ -119,6 +127,11 @@ class Gps {
    * @brief Send rtcm correction message.
   */
   bool sendRtcm(const std::vector<uint8_t> &message);
+
+  /**
+   * @brief Send SPARTN correction message.
+  */
+  bool sendSpartn(const std::vector<uint8_t> &message);
 
   /**
    * @brief Closes the I/O port, and initiates save on shutdown procedure

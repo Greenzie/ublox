@@ -1,0 +1,21 @@
+Source: ros-noetic-ublox-msg-filters
+Section: misc
+Priority: optional
+Maintainer: Kevin Hallenbeck <khallenbeck@dataspeedinc.com>
+Build-Depends: debhelper (>= 9.0.0),
+    ros-noetic-catkin,
+    ros-noetic-message-filters,
+    ros-noetic-roscpp,
+    ros-noetic-roslaunch,
+    ros-noetic-rospy,
+    ros-noetic-ublox-msgs (= ${binary:Version})
+Homepage: http://ros.org/wiki/ublox
+Standards-Version: 3.9.2
+
+Package: ros-noetic-ublox-msg-filters
+Architecture: any
+Depends: ${shlibs:Depends},
+    ${misc:Depends},
+    ros-noetic-message-filters,
+    ros-noetic-ublox-msgs (= ${binary:Version})
+Description: Time synchronize multiple uBlox messages to get a single callback
