@@ -1,36 +1,36 @@
 /*********************************************************************
-* Software License Agreement (BSD License)
-*
-*  Copyright (c) 2009, Willow Garage, Inc.
-*  All rights reserved.
-*
-*  Redistribution and use in source and binary forms, with or without
-*  modification, are permitted provided that the following conditions
-*  are met:
-*
-*   * Redistributions of source code must retain the above copyright
-*     notice, this list of conditions and the following disclaimer.
-*   * Redistributions in binary form must reproduce the above
-*     copyright notice, this list of conditions and the following
-*     disclaimer in the documentation and/or other materials provided
-*     with the distribution.
-*   * Neither the name of the Willow Garage nor the names of its
-*     contributors may be used to endorse or promote products derived
-*     from this software without specific prior written permission.
-*
-*  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-*  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-*  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-*  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-*  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-*  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-*  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-*  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-*  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-*  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-*  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-*  POSSIBILITY OF SUCH DAMAGE.
-*********************************************************************/
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2009, Willow Garage, Inc.
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of the Willow Garage nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *********************************************************************/
 
 #ifndef UBLOX_MSG_FILTERS_EXACT_TIME_H
 #define UBLOX_MSG_FILTERS_EXACT_TIME_H
@@ -62,33 +62,52 @@
 
 namespace ublox_msg_filters
 {
-
 using NullType = message_filters::NullType;
 using Connection = message_filters::Connection;
 
-template<typename M0, typename M1, typename M2, typename M3, typename M4,
-         typename M5, typename M6, typename M7, typename M8>
+template <typename M0,
+          typename M1,
+          typename M2,
+          typename M3,
+          typename M4,
+          typename M5,
+          typename M6,
+          typename M7,
+          typename M8>
 using PolicyBase = message_filters::PolicyBase<M0, M1, M2, M3, M4, M5, M6, M7, M8>;
 
-template<class Policy>
+template <class Policy>
 using Synchronizer = message_filters::Synchronizer<Policy>;
 
 namespace mpl = boost::mpl;
 
-template<typename M>
+template <typename M>
 struct iTOW
 {
-  static u_int32_t value(const M& m) { return m.iTOW; }
+  static u_int32_t value(const M& m)
+  {
+    return m.iTOW;
+  }
 };
 
-template<>
+template <>
 struct iTOW<NullType>
 {
-  static u_int32_t value(const NullType& m) { return 0; }
+  static u_int32_t value(const NullType& m)
+  {
+    return 0;
+  }
 };
 
-template<typename M0, typename M1, typename M2 = NullType, typename M3 = NullType, typename M4 = NullType,
-         typename M5 = NullType, typename M6 = NullType, typename M7 = NullType, typename M8 = NullType>
+template <typename M0,
+          typename M1,
+          typename M2 = NullType,
+          typename M3 = NullType,
+          typename M4 = NullType,
+          typename M5 = NullType,
+          typename M6 = NullType,
+          typename M7 = NullType,
+          typename M8 = NullType>
 struct ExactTime : public PolicyBase<M0, M1, M2, M3, M4, M5, M6, M7, M8>
 {
   typedef Synchronizer<ExactTime> Sync;
@@ -108,11 +127,7 @@ struct ExactTime : public PolicyBase<M0, M1, M2, M3, M4, M5, M6, M7, M8>
   typedef typename Super::M8Event M8Event;
   typedef boost::tuple<M0Event, M1Event, M2Event, M3Event, M4Event, M5Event, M6Event, M7Event, M8Event> Tuple;
 
-  ExactTime(uint32_t queue_size)
-  : parent_(0)
-  , queue_size_(queue_size)
-  , enable_reset_(false)
-  , last_stamp_(0)
+  ExactTime(uint32_t queue_size) : parent_(0), queue_size_(queue_size), enable_reset_(false), last_stamp_(0)
   {
   }
 
@@ -137,7 +152,7 @@ struct ExactTime : public PolicyBase<M0, M1, M2, M3, M4, M5, M6, M7, M8>
     parent_ = parent;
   }
 
-  template<int i>
+  template <int i>
   void add(const typename mpl::at_c<Events, i>::type& evt)
   {
     ROS_ASSERT(parent_);
@@ -152,44 +167,44 @@ struct ExactTime : public PolicyBase<M0, M1, M2, M3, M4, M5, M6, M7, M8>
     checkTuple(t);
   }
 
-  template<class C>
+  template <class C>
   Connection registerDropCallback(const C& callback)
   {
-  #ifndef _WIN32
+#ifndef _WIN32
     return drop_signal_.template addCallback(callback);
-  #else
+#else
     return drop_signal_.addCallback(callback);
-  #endif
+#endif
   }
 
-  template<class C>
+  template <class C>
   Connection registerDropCallback(C& callback)
   {
-  #ifndef _WIN32
+#ifndef _WIN32
     return drop_signal_.template addCallback(callback);
-  #else
+#else
     return drop_signal_.addCallback(callback);
-  #endif
+#endif
   }
 
-  template<class C, typename T>
+  template <class C, typename T>
   Connection registerDropCallback(const C& callback, T* t)
   {
-  #ifndef _WIN32
+#ifndef _WIN32
     return drop_signal_.template addCallback(callback, t);
-  #else
+#else
     return drop_signal_.addCallback(callback, t);
-  #endif
+#endif
   }
 
-  template<class C, typename T>
+  template <class C, typename T>
   Connection registerDropCallback(C& callback, T* t)
   {
-  #ifndef _WIN32
+#ifndef _WIN32
     return drop_signal_.template addCallback(callback, t);
-  #else
+#else
     return drop_signal_.addCallback(callback, t);
-  #endif
+#endif
   }
 
   void setReset(const bool reset)
@@ -198,7 +213,6 @@ struct ExactTime : public PolicyBase<M0, M1, M2, M3, M4, M5, M6, M7, M8>
   }
 
 private:
-
   // assumes mutex_ is already locked
   void checkTuple(Tuple& t)
   {
@@ -217,9 +231,15 @@ private:
 
     if (full)
     {
-      parent_->signal(boost::get<0>(t), boost::get<1>(t), boost::get<2>(t),
-                      boost::get<3>(t), boost::get<4>(t), boost::get<5>(t),
-                      boost::get<6>(t), boost::get<7>(t), boost::get<8>(t));
+      parent_->signal(boost::get<0>(t),
+                      boost::get<1>(t),
+                      boost::get<2>(t),
+                      boost::get<3>(t),
+                      boost::get<4>(t),
+                      boost::get<5>(t),
+                      boost::get<6>(t),
+                      boost::get<7>(t),
+                      boost::get<8>(t));
 
       last_signal_time_ = iTOW<M0>::value(*boost::get<0>(t).getMessage());
 
@@ -233,9 +253,15 @@ private:
       while (tuples_.size() > queue_size_)
       {
         Tuple& t2 = tuples_.begin()->second;
-        drop_signal_.call(boost::get<0>(t2), boost::get<1>(t2), boost::get<2>(t2),
-                          boost::get<3>(t2), boost::get<4>(t2), boost::get<5>(t2),
-                          boost::get<6>(t2), boost::get<7>(t2), boost::get<8>(t2));
+        drop_signal_.call(boost::get<0>(t2),
+                          boost::get<1>(t2),
+                          boost::get<2>(t2),
+                          boost::get<3>(t2),
+                          boost::get<4>(t2),
+                          boost::get<5>(t2),
+                          boost::get<6>(t2),
+                          boost::get<7>(t2),
+                          boost::get<8>(t2));
         tuples_.erase(tuples_.begin());
       }
     }
@@ -254,9 +280,15 @@ private:
         ++it;
 
         Tuple& t = old->second;
-        drop_signal_.call(boost::get<0>(t), boost::get<1>(t), boost::get<2>(t),
-                          boost::get<3>(t), boost::get<4>(t), boost::get<5>(t),
-                          boost::get<6>(t), boost::get<7>(t), boost::get<8>(t));
+        drop_signal_.call(boost::get<0>(t),
+                          boost::get<1>(t),
+                          boost::get<2>(t),
+                          boost::get<3>(t),
+                          boost::get<4>(t),
+                          boost::get<5>(t),
+                          boost::get<6>(t),
+                          boost::get<7>(t),
+                          boost::get<8>(t));
         tuples_.erase(old);
       }
       else
@@ -282,6 +314,6 @@ private:
   boost::mutex mutex_;
 };
 
-} // namespace ublox_msg_filters
+}  // namespace ublox_msg_filters
 
-#endif // UBLOX_MSG_FILTERS_EXACT_TIME_H
+#endif  // UBLOX_MSG_FILTERS_EXACT_TIME_H
