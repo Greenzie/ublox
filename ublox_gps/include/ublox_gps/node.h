@@ -85,8 +85,8 @@
  * This namespace is for the ROS u-blox node and handles anything regarding
  * ROS parameters, message passing, diagnostics, etc.
  */
-namespace ublox_node {
-
+namespace ublox_node
+{
 //! Queue size for ROS publishers
 constexpr static uint32_t kROSQueueSize = 1;
 //! Default measurement period for HPG devices
@@ -128,10 +128,12 @@ std::vector<uint8_t> rtcm_rates;
 //! Flag for enabling configuration on startup
 bool config_on_startup_flag_;
 
-
 //! Topic diagnostics for u-blox messages
-struct UbloxTopicDiagnostic {
-  UbloxTopicDiagnostic() {}
+struct UbloxTopicDiagnostic
+{
+  UbloxTopicDiagnostic()
+  {
+  }
 
   // Must not copy this struct (would confuse FrequencyStatusParam pointers)
   UbloxTopicDiagnostic(const UbloxTopicDiagnostic&) = delete;
@@ -144,15 +146,13 @@ struct UbloxTopicDiagnostic {
    * @param freq_tol the tolerance [%] for the topic frequency
    * @param freq_window the number of messages to use for diagnostic statistics
    */
-  UbloxTopicDiagnostic (std::string topic, double freq_tol, int freq_window) {
-    const double target_freq = 1.0 / (meas_rate * 1e-3 * nav_rate); // Hz
+  UbloxTopicDiagnostic(std::string topic, double freq_tol, int freq_window)
+  {
+    const double target_freq = 1.0 / (meas_rate * 1e-3 * nav_rate);  // Hz
     min_freq = target_freq;
     max_freq = target_freq;
-    diagnostic_updater::FrequencyStatusParam freq_param(&min_freq, &max_freq,
-                                                        freq_tol, freq_window);
-    diagnostic = new diagnostic_updater::HeaderlessTopicDiagnostic(topic,
-                                                                   *updater,
-                                                                   freq_param);
+    diagnostic_updater::FrequencyStatusParam freq_param(&min_freq, &max_freq, freq_tol, freq_window);
+    diagnostic = new diagnostic_updater::HeaderlessTopicDiagnostic(topic, *updater, freq_param);
   }
 
   /**
@@ -165,19 +165,16 @@ struct UbloxTopicDiagnostic {
    * @param freq_tol the tolerance [%] for the topic frequency
    * @param freq_window the number of messages to use for diagnostic statistics
    */
-  UbloxTopicDiagnostic (std::string topic, double freq_min, double freq_max,
-                   double freq_tol, int freq_window) {
+  UbloxTopicDiagnostic(std::string topic, double freq_min, double freq_max, double freq_tol, int freq_window)
+  {
     min_freq = freq_min;
     max_freq = freq_max;
-    diagnostic_updater::FrequencyStatusParam freq_param(&min_freq, &max_freq,
-                                                        freq_tol, freq_window);
-    diagnostic = new diagnostic_updater::HeaderlessTopicDiagnostic(topic,
-                                                                   *updater,
-                                                                   freq_param);
+    diagnostic_updater::FrequencyStatusParam freq_param(&min_freq, &max_freq, freq_tol, freq_window);
+    diagnostic = new diagnostic_updater::HeaderlessTopicDiagnostic(topic, *updater, freq_param);
   }
 
   //! Topic frequency diagnostic updater
-  diagnostic_updater::HeaderlessTopicDiagnostic *diagnostic;
+  diagnostic_updater::HeaderlessTopicDiagnostic* diagnostic;
   //! Minimum allow frequency of topic
   double min_freq;
   //! Maximum allow frequency of topic
@@ -185,8 +182,11 @@ struct UbloxTopicDiagnostic {
 };
 
 //! Topic diagnostics for fix / fix_velocity messages
-struct FixDiagnostic {
-  FixDiagnostic() {}
+struct FixDiagnostic
+{
+  FixDiagnostic()
+  {
+  }
 
   // Must not copy this struct (would confuse FrequencyStatusParam pointers)
   FixDiagnostic(const FixDiagnostic&) = delete;
@@ -200,23 +200,19 @@ struct FixDiagnostic {
    * @param freq_window the number of messages to use for diagnostic statistics
    * @param stamp_min the minimum allowed time delay
    */
-  FixDiagnostic (std::string name, double freq_tol, int freq_window,
-                 double stamp_min) {
-    const double target_freq = 1.0 / (meas_rate * 1e-3 * nav_rate); // Hz
+  FixDiagnostic(std::string name, double freq_tol, int freq_window, double stamp_min)
+  {
+    const double target_freq = 1.0 / (meas_rate * 1e-3 * nav_rate);  // Hz
     min_freq = target_freq;
     max_freq = target_freq;
-    diagnostic_updater::FrequencyStatusParam freq_param(&min_freq, &max_freq,
-                                                        freq_tol, freq_window);
+    diagnostic_updater::FrequencyStatusParam freq_param(&min_freq, &max_freq, freq_tol, freq_window);
     double stamp_max = meas_rate * 1e-3 * (1 + freq_tol);
     diagnostic_updater::TimeStampStatusParam time_param(stamp_min, stamp_max);
-    diagnostic = new diagnostic_updater::TopicDiagnostic(name,
-                                                         *updater,
-                                                         freq_param,
-                                                         time_param);
+    diagnostic = new diagnostic_updater::TopicDiagnostic(name, *updater, freq_param, time_param);
   }
 
   //! Topic frequency diagnostic updater
-  diagnostic_updater::TopicDiagnostic *diagnostic;
+  diagnostic_updater::TopicDiagnostic* diagnostic;
   //! Minimum allow frequency of topic
   double min_freq;
   //! Maximum allow frequency of topic
@@ -262,8 +258,10 @@ uint8_t fixModeFromString(const std::string& mode);
  * @throws std::runtime_error if it is below the minimum
  */
 template <typename V, typename T>
-void checkMin(V val, T min, std::string name) {
-  if(val < min) {
+void checkMin(V val, T min, std::string name)
+{
+  if (val < min)
+  {
     std::stringstream oss;
     oss << "Invalid settings: " << name << " must be > " << min;
     throw std::runtime_error(oss.str());
@@ -279,11 +277,12 @@ void checkMin(V val, T min, std::string name) {
  * @throws std::runtime_error if it is out of bounds
  */
 template <typename V, typename T>
-void checkRange(V val, T min, T max, std::string name) {
-  if(val < min || val > max) {
+void checkRange(V val, T min, T max, std::string name)
+{
+  if (val < min || val > max)
+  {
     std::stringstream oss;
-    oss << "Invalid settings: " << name << " must be in range [" << min <<
-        ", " << max << "].";
+    oss << "Invalid settings: " << name << " must be in range [" << min << ", " << max << "].";
     throw std::runtime_error(oss.str());
   }
 }
@@ -297,8 +296,10 @@ void checkRange(V val, T min, T max, std::string name) {
  * @throws std::runtime_error value it is out of bounds
  */
 template <typename V, typename T>
-void checkRange(std::vector<V> val, T min, T max, std::string name) {
-  for(size_t i = 0; i < val.size(); i++)  {
+void checkRange(std::vector<V> val, T min, T max, std::string name)
+{
+  for (size_t i = 0; i < val.size(); i++)
+  {
     std::stringstream oss;
     oss << name << "[" << i << "]";
     checkRange(val[i], min, max, oss.str());
@@ -313,15 +314,17 @@ void checkRange(std::vector<V> val, T min, T max, std::string name) {
  * @return true if found, false if not found.
  */
 template <typename U>
-bool getRosUint(const std::string& key, U &u) {
+bool getRosUint(const std::string& key, U& u)
+{
   int param;
-  if (!nh->getParam(key, param)) return false;
+  if (!nh->getParam(key, param))
+    return false;
   // Check the bounds
   U min = std::numeric_limits<U>::lowest();
   U max = std::numeric_limits<U>::max();
   checkRange(param, min, max, key);
   // set the output
-  u = (U) param;
+  u = (U)param;
   return true;
 }
 
@@ -334,8 +337,9 @@ bool getRosUint(const std::string& key, U &u) {
  * @return true if found, false if not found.
  */
 template <typename U, typename V>
-void getRosUint(const std::string& key, U &u, V default_val) {
-  if(!getRosUint(key, u))
+void getRosUint(const std::string& key, U& u, V default_val)
+{
+  if (!getRosUint(key, u))
     u = default_val;
 }
 
@@ -345,9 +349,11 @@ void getRosUint(const std::string& key, U &u, V default_val) {
  * @return true if found, false if not found.
  */
 template <typename U>
-bool getRosUint(const std::string& key, std::vector<U> &u) {
+bool getRosUint(const std::string& key, std::vector<U>& u)
+{
   std::vector<int> param;
-  if (!nh->getParam(key, param)) return false;
+  if (!nh->getParam(key, param))
+    return false;
 
   // Check the bounds
   U min = std::numeric_limits<U>::lowest();
@@ -367,15 +373,17 @@ bool getRosUint(const std::string& key, std::vector<U> &u) {
  * @return true if found, false if not found.
  */
 template <typename I>
-bool getRosInt(const std::string& key, I &u) {
+bool getRosInt(const std::string& key, I& u)
+{
   int param;
-  if (!nh->getParam(key, param)) return false;
+  if (!nh->getParam(key, param))
+    return false;
   // Check the bounds
   I min = std::numeric_limits<I>::lowest();
   I max = std::numeric_limits<I>::max();
   checkRange(param, min, max, key);
   // set the output
-  u = (I) param;
+  u = (I)param;
   return true;
 }
 
@@ -388,8 +396,9 @@ bool getRosInt(const std::string& key, I &u) {
  * @return true if found, false if not found.
  */
 template <typename U, typename V>
-void getRosInt(const std::string& key, U &u, V default_val) {
-  if(!getRosInt(key, u))
+void getRosInt(const std::string& key, U& u, V default_val)
+{
+  if (!getRosInt(key, u))
     u = default_val;
 }
 
@@ -399,9 +408,11 @@ void getRosInt(const std::string& key, U &u, V default_val) {
  * @return true if found, false if not found.
  */
 template <typename I>
-bool getRosInt(const std::string& key, std::vector<I> &i) {
+bool getRosInt(const std::string& key, std::vector<I>& i)
+{
   std::vector<int> param;
-  if (!nh->getParam(key, param)) return false;
+  if (!nh->getParam(key, param))
+    return false;
 
   // Check the bounds
   I min = std::numeric_limits<I>::lowest();
@@ -422,9 +433,9 @@ bool getRosInt(const std::string& key, std::vector<I> &i) {
  * @param topic the topic to publish the message on
  */
 template <typename MessageT>
-void publish(const MessageT& m, const std::string& topic) {
-  static ros::Publisher publisher = nh->advertise<MessageT>(topic,
-                                                            kROSQueueSize);
+void publish(const MessageT& m, const std::string& topic)
+{
+  static ros::Publisher publisher = nh->advertise<MessageT>(topic, kROSQueueSize);
   publisher.publish(m);
 }
 
@@ -433,7 +444,8 @@ void publish(const MessageT& m, const std::string& topic) {
  * i.e. GPS, GLO, GAL, BDS, QZSS, SBAS, IMES
  * @return true if the device supports the given GNSS
  */
-bool supportsGnss(std::string gnss) {
+bool supportsGnss(std::string gnss)
+{
   return supported.count(gnss) > 0;
 }
 
@@ -443,8 +455,9 @@ bool supportsGnss(std::string gnss) {
  * @details This interface is generic and can be implemented for other features
  * besides the main node, hardware versions, and firmware versions.
  */
-class ComponentInterface {
- public:
+class ComponentInterface
+{
+public:
   /**
    * @brief Get the ROS parameters.
    * @throws std::runtime_error if a parameter is invalid or required
@@ -488,8 +501,9 @@ typedef boost::shared_ptr<ComponentInterface> ComponentPtr;
  * The UbloxNode calls the public methods of ComponentInterface for each
  * element in the components vector.
  */
-class UbloxNode : public virtual ComponentInterface {
- public:
+class UbloxNode : public virtual ComponentInterface
+{
+public:
   //! How often (in seconds) to send keep-alive message
   constexpr static double kKeepAlivePeriod = 10.0;
   //! How often (in seconds) to call poll messages
@@ -533,10 +547,9 @@ class UbloxNode : public virtual ComponentInterface {
   /**
    * @brief Print an INF message to the ROS console.
    */
-  void printInf(const ublox_msgs::Inf &m, uint8_t id);
+  void printInf(const ublox_msgs::Inf& m, uint8_t id);
 
- private:
-
+private:
   /**
    * @brief Initialize the I/O handling.
    */
@@ -579,8 +592,7 @@ class UbloxNode : public virtual ComponentInterface {
    * @param for HPG/TIM products, this value is either REF or ROV, for other
    * products this string is empty
    */
-  void addProductInterface(std::string product_category,
-                           std::string ref_rov = "");
+  void addProductInterface(std::string product_category, std::string ref_rov = "");
 
   /**
    * @brief Poll version message from the U-Blox device to keep socket active.
@@ -633,7 +645,7 @@ class UbloxNode : public virtual ComponentInterface {
   //! USB in protocol (see CfgPRT message for constants)
   uint16_t usb_in_;
   //! USB out protocol (see CfgPRT message for constants)
-  uint16_t usb_out_ ;
+  uint16_t usb_out_;
   //! The measurement rate in Hz
   double rate_;
   //! If true, set configure the User-Defined Datum
@@ -666,26 +678,27 @@ class UbloxNode : public virtual ComponentInterface {
  *
  * @details The Firmware components update the fix diagnostics.
  */
-class UbloxFirmware : public virtual ComponentInterface {
- public:
+class UbloxFirmware : public virtual ComponentInterface
+{
+public:
   /**
    * @brief Add the fix diagnostics to the updater.
    */
   void initializeRosDiagnostics();
 
- protected:
+protected:
   /**
    * @brief Handle to send fix status to ROS diagnostics.
    */
-  virtual void fixDiagnostic(
-      diagnostic_updater::DiagnosticStatusWrapper& stat) = 0;
+  virtual void fixDiagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat) = 0;
 };
 
 /**
  * @brief Implements functions for firmware version 6.
  */
-class UbloxFirmware6 : public UbloxFirmware {
- public:
+class UbloxFirmware6 : public UbloxFirmware
+{
+public:
   UbloxFirmware6();
 
   /**
@@ -704,14 +717,14 @@ class UbloxFirmware6 : public UbloxFirmware {
    */
   void subscribe();
 
- protected:
+protected:
   /**
    * @brief Updates fix diagnostic from NavPOSLLH, NavVELNED, and NavSOL
    * messages.
    */
   void fixDiagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat);
 
- private:
+private:
   /**
    * @brief Publish the fix and call the fix diagnostic updater.
    *
@@ -763,9 +776,10 @@ class UbloxFirmware6 : public UbloxFirmware {
  *
  * @typedef NavPVT the NavPVT message type for the given firmware version
  */
-template<typename NavPVT>
-class UbloxFirmware7Plus : public UbloxFirmware {
- public:
+template <typename NavPVT>
+class UbloxFirmware7Plus : public UbloxFirmware
+{
+public:
   /**
    * @brief Publish a NavSatFix and TwistWithCovarianceStamped messages.
    *
@@ -774,76 +788,80 @@ class UbloxFirmware7Plus : public UbloxFirmware {
    * is published. This function also calls the ROS diagnostics updater.
    * @param m the message to publish
    */
-  void callbackNavPvt(const NavPVT& m) {
-    if(enabled["nav_pvt"]) {
+  void callbackNavPvt(const NavPVT& m)
+  {
+    if (enabled["nav_pvt"])
+    {
       // NavPVT publisher
-      static ros::Publisher publisher = nh->advertise<NavPVT>("navpvt",
-                                                              kROSQueueSize);
+      static ros::Publisher publisher = nh->advertise<NavPVT>("navpvt", kROSQueueSize);
       publisher.publish(m);
     }
 
     //
     // NavSatFix message
     //
-    static ros::Publisher fixPublisher =
-        nh->advertise<sensor_msgs::NavSatFix>("fix", kROSQueueSize);
+    static ros::Publisher fixPublisher = nh->advertise<sensor_msgs::NavSatFix>("fix", kROSQueueSize);
 
     sensor_msgs::NavSatFix fix;
     fix.header.frame_id = frame_id;
     // set the timestamp
     uint8_t valid_time = m.VALID_DATE | m.VALID_TIME | m.VALID_FULLY_RESOLVED;
-    if (((m.valid & valid_time) == valid_time) &&
-        (m.flags2 & m.FLAGS2_CONFIRMED_AVAILABLE)) {
+    if (((m.valid & valid_time) == valid_time) && (m.flags2 & m.FLAGS2_CONFIRMED_AVAILABLE))
+    {
       // Use NavPVT timestamp since it is valid
       // The time in nanoseconds from the NavPVT message can be between -1e9 and 1e9
       //  The ros time uses only unsigned values, so a negative nano seconds must be
       //  converted to a positive value
-      if (m.nano < 0) {
+      if (m.nano < 0)
+      {
         fix.header.stamp.sec = toUtcSeconds(m) - 1;
         fix.header.stamp.nsec = (uint32_t)(m.nano + 1e9);
       }
-      else {
+      else
+      {
         fix.header.stamp.sec = toUtcSeconds(m);
         fix.header.stamp.nsec = (uint32_t)(m.nano);
       }
-    } else {
+    }
+    else
+    {
       // Use ROS time since NavPVT timestamp is not valid
       fix.header.stamp = ros::Time::now();
     }
     // Set the LLA
-    fix.latitude = m.lat * 1e-7; // to deg
-    fix.longitude = m.lon * 1e-7; // to deg
-    fix.altitude = m.height * 1e-3; // to [m]
+    fix.latitude = m.lat * 1e-7;     // to deg
+    fix.longitude = m.lon * 1e-7;    // to deg
+    fix.altitude = m.height * 1e-3;  // to [m]
     // Set the Fix status
     bool fixOk = m.flags & m.FLAGS_GNSS_FIX_OK;
-    if (fixOk && m.fixType >= m.FIX_TYPE_2D) {
+    if (fixOk && m.fixType >= m.FIX_TYPE_2D)
+    {
       fix.status.status = fix.status.STATUS_FIX;
-      if(m.flags & m.CARRIER_PHASE_FIXED)
+      if (m.flags & m.CARRIER_PHASE_FIXED)
         fix.status.status = fix.status.STATUS_GBAS_FIX;
     }
-    else {
+    else
+    {
       fix.status.status = fix.status.STATUS_NO_FIX;
     }
     // Set the service based on GNSS configuration
     fix.status.service = fix_status_service;
 
     // Set the position covariance
-    const double varH = pow(m.hAcc / 1000.0, 2); // to [m^2]
-    const double varV = pow(m.vAcc / 1000.0, 2); // to [m^2]
+    const double varH = pow(m.hAcc / 1000.0, 2);  // to [m^2]
+    const double varV = pow(m.vAcc / 1000.0, 2);  // to [m^2]
     fix.position_covariance[0] = varH;
     fix.position_covariance[4] = varH;
     fix.position_covariance[8] = varV;
-    fix.position_covariance_type =
-        sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
+    fix.position_covariance_type = sensor_msgs::NavSatFix::COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
     fixPublisher.publish(fix);
 
     //
     // Twist message
     //
-    static ros::Publisher velocityPublisher =
-        nh->advertise<geometry_msgs::TwistWithCovarianceStamped>("fix_velocity",
-                                                                 kROSQueueSize);
+    static ros::Publisher velocityPublisher = nh->advertise<geometry_msgs::TwistWithCovarianceStamped>("fix_velocity",
+                                                                                                       kROSQueueSize);
     geometry_msgs::TwistWithCovarianceStamped velocity;
     velocity.header.stamp = fix.header.stamp;
     velocity.header.frame_id = frame_id;
@@ -870,51 +888,63 @@ class UbloxFirmware7Plus : public UbloxFirmware {
     updater->update();
   }
 
- protected:
-
+protected:
   /**
    * @brief Update the fix diagnostics from Nav PVT message.
    */
-  void fixDiagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat) {
+  void fixDiagnostic(diagnostic_updater::DiagnosticStatusWrapper& stat)
+  {
     // check the last message, convert to diagnostic
-    if (last_nav_pvt_.fixType ==
-        ublox_msgs::NavPVT::FIX_TYPE_DEAD_RECKONING_ONLY) {
+    if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_DEAD_RECKONING_ONLY)
+    {
       stat.level = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.message = "Dead reckoning only";
-    } else if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_2D) {
+    }
+    else if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_2D)
+    {
       stat.level = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.message = "2D fix";
-    } else if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_3D) {
+    }
+    else if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_3D)
+    {
       stat.level = diagnostic_msgs::DiagnosticStatus::OK;
       stat.message = "3D fix";
-    } else if (last_nav_pvt_.fixType ==
-               ublox_msgs::NavPVT::FIX_TYPE_GNSS_DEAD_RECKONING_COMBINED) {
+    }
+    else if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_GNSS_DEAD_RECKONING_COMBINED)
+    {
       stat.level = diagnostic_msgs::DiagnosticStatus::OK;
       stat.message = "GPS and dead reckoning combined";
-    } else if (last_nav_pvt_.fixType ==
-               ublox_msgs::NavPVT::FIX_TYPE_TIME_ONLY) {
+    }
+    else if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_TIME_ONLY)
+    {
       stat.level = diagnostic_msgs::DiagnosticStatus::OK;
       stat.message = "Time only fix";
     }
-    
+
     // Check whether differential GNSS available
-    if (last_nav_pvt_.flags & ublox_msgs::NavPVT::FLAGS_DIFF_SOLN) {
+    if (last_nav_pvt_.flags & ublox_msgs::NavPVT::FLAGS_DIFF_SOLN)
+    {
       stat.message += ", DGNSS";
-    } 
+    }
     // If DGNSS, then update the differential solution status
-    if (last_nav_pvt_.flags & ublox_msgs::NavPVT::CARRIER_PHASE_FLOAT) {
+    if (last_nav_pvt_.flags & ublox_msgs::NavPVT::CARRIER_PHASE_FLOAT)
+    {
       stat.message += ", FLOAT FIX";
-    } else if (last_nav_pvt_.flags & ublox_msgs::NavPVT::CARRIER_PHASE_FIXED) {
+    }
+    else if (last_nav_pvt_.flags & ublox_msgs::NavPVT::CARRIER_PHASE_FIXED)
+    {
       stat.message += ", RTK FIX";
     }
 
     // If fix not ok (w/in DOP & Accuracy Masks), raise the diagnostic level
-    if (!(last_nav_pvt_.flags & ublox_msgs::NavPVT::FLAGS_GNSS_FIX_OK)) {
+    if (!(last_nav_pvt_.flags & ublox_msgs::NavPVT::FLAGS_GNSS_FIX_OK))
+    {
       stat.level = diagnostic_msgs::DiagnosticStatus::WARN;
       stat.message += ", fix not ok";
     }
     // Raise diagnostic level to error if no fix
-    if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_NO_FIX) {
+    if (last_nav_pvt_.fixType == ublox_msgs::NavPVT::FIX_TYPE_NO_FIX)
+    {
       stat.level = diagnostic_msgs::DiagnosticStatus::ERROR;
       stat.message = "No fix";
     }
@@ -954,8 +984,9 @@ class UbloxFirmware7Plus : public UbloxFirmware {
 /**
  * @brief Implements functions for firmware version 7.
  */
-class UbloxFirmware7 : public UbloxFirmware7Plus<ublox_msgs::NavPVT7> {
- public:
+class UbloxFirmware7 : public UbloxFirmware7Plus<ublox_msgs::NavPVT7>
+{
+public:
   UbloxFirmware7();
 
   /**
@@ -977,21 +1008,22 @@ class UbloxFirmware7 : public UbloxFirmware7Plus<ublox_msgs::NavPVT7> {
    */
   void subscribe();
 
-  private:
-    //! Used to configure NMEA (if set_nmea_)
-    /*!
-     * Filled from ROS parameters
-     */
-    ublox_msgs::CfgNMEA7 cfg_nmea_;
-    //! Whether or not to Configure the NMEA settings
-    bool set_nmea_;
+private:
+  //! Used to configure NMEA (if set_nmea_)
+  /*!
+   * Filled from ROS parameters
+   */
+  ublox_msgs::CfgNMEA7 cfg_nmea_;
+  //! Whether or not to Configure the NMEA settings
+  bool set_nmea_;
 };
 
 /**
  *  @brief Implements functions for firmware version 8.
  */
-class UbloxFirmware8 : public UbloxFirmware7Plus<ublox_msgs::NavPVT> {
- public:
+class UbloxFirmware8 : public UbloxFirmware7Plus<ublox_msgs::NavPVT>
+{
+public:
   UbloxFirmware8();
 
   /**
@@ -1019,7 +1051,7 @@ class UbloxFirmware8 : public UbloxFirmware7Plus<ublox_msgs::NavPVT> {
    */
   void subscribe();
 
- private:
+private:
   // Set from ROS parameters
   //! Whether or not to enable the Galileo GNSS
   bool enable_galileo_;
@@ -1040,27 +1072,34 @@ class UbloxFirmware8 : public UbloxFirmware7Plus<ublox_msgs::NavPVT> {
  *  For now it simply re-uses the firmware version 8 class
  *  but allows for future expansion of functionality
  */
-class UbloxFirmware9 : public UbloxFirmware8 {
+class UbloxFirmware9 : public UbloxFirmware8
+{
 };
 
 /**
  * @brief Implements functions for Raw Data products.
  */
-class RawDataProduct: public virtual ComponentInterface {
- public:
+class RawDataProduct : public virtual ComponentInterface
+{
+public:
   static constexpr double kRtcmFreqTol = 0.15;
   static constexpr int kRtcmFreqWindow = 25;
 
   /**
    * @brief Does nothing since there are no Raw Data product specific settings.
    */
-  void getRosParams() {}
+  void getRosParams()
+  {
+  }
 
   /**
    * @brief Does nothing since there are no Raw Data product specific settings.
    * @return always returns true
    */
-  bool configureUblox() { return true; }
+  bool configureUblox()
+  {
+    return true;
+  }
 
   /**
    * @brief Subscribe to Raw Data Product messages and set up ROS publishers.
@@ -1074,7 +1113,7 @@ class RawDataProduct: public virtual ComponentInterface {
    */
   void initializeRosDiagnostics();
 
- private:
+private:
   //! Topic diagnostic updaters
   std::vector<boost::shared_ptr<UbloxTopicDiagnostic> > freq_diagnostics_;
 };
@@ -1083,10 +1122,11 @@ class RawDataProduct: public virtual ComponentInterface {
  * @brief Implements functions for Automotive Dead Reckoning (ADR) and
  * Untethered Dead Reckoning (UDR) Devices.
  */
-class AdrUdrProduct: public virtual ComponentInterface {
- public:
+class AdrUdrProduct : public virtual ComponentInterface
+{
+public:
   AdrUdrProduct(float protocol_version);
-  
+
   /**
    * @brief Get the ADR/UDR parameters.
    *
@@ -1113,34 +1153,36 @@ class AdrUdrProduct: public virtual ComponentInterface {
    * @brief Initialize the ROS diagnostics for the ADR/UDR device.
    * @todo unimplemented
    */
-  void initializeRosDiagnostics() {
+  void initializeRosDiagnostics()
+  {
     ROS_WARN("ROS Diagnostics specific to u-blox ADR/UDR devices is %s",
              "unimplemented. See AdrUdrProduct class in node.h & node.cpp.");
   }
 
- protected:
+protected:
   //! Whether or not to enable dead reckoning
-  bool use_adr_;  
+  bool use_adr_;
   float protocol_version_;
 
-   
   sensor_msgs::Imu imu_;
   sensor_msgs::TimeReference t_ref_;
   ublox_msgs::TimTM2 timtm2;
 
-  void callbackEsfMEAS(const ublox_msgs::EsfMEAS &m);
+  void callbackEsfMEAS(const ublox_msgs::EsfMEAS& m);
 };
 
 /**
  * @brief Implements functions for FTS products. Currently unimplemented.
  * @todo Unimplemented.
  */
-class FtsProduct: public virtual ComponentInterface {
+class FtsProduct : public virtual ComponentInterface
+{
   /**
    * @brief Get the FTS parameters.
    * @todo Currently unimplemented.
    */
-  void getRosParams() {
+  void getRosParams()
+  {
     ROS_WARN("Functionality specific to u-blox FTS devices is %s",
              "unimplemented. See FtsProduct class in node.h & node.cpp.");
   }
@@ -1149,27 +1191,35 @@ class FtsProduct: public virtual ComponentInterface {
    * @brief Configure FTS settings.
    * @todo Currently unimplemented.
    */
-  bool configureUblox() { return false; }
+  bool configureUblox()
+  {
+    return false;
+  }
 
   /**
    * @brief Subscribe to FTS messages.
    * @todo Currently unimplemented.
    */
-  void subscribe() {}
+  void subscribe()
+  {
+  }
 
   /**
    * @brief Adds diagnostic updaters for FTS status.
    * @todo Currently unimplemented.
    */
-  void initializeRosDiagnostics() {}
+  void initializeRosDiagnostics()
+  {
+  }
 };
 
 /**
  * @brief Implements functions for High Precision GNSS Reference station
  * devices.
  */
-class HpgRefProduct: public virtual ComponentInterface {
- public:
+class HpgRefProduct : public virtual ComponentInterface
+{
+public:
   /**
    * @brief Get the ROS parameters specific to the Reference Station
    * configuration.
@@ -1213,7 +1263,7 @@ class HpgRefProduct: public virtual ComponentInterface {
    */
   void callbackNavSvIn(ublox_msgs::NavSVIN m);
 
- protected:
+protected:
   /**
    * @brief Update the TMODE3 diagnostics.
    *
@@ -1265,20 +1315,22 @@ class HpgRefProduct: public virtual ComponentInterface {
   float sv_in_acc_lim_;
 
   //! Status of device time mode
-  enum {
-    INIT, //!< Initialization mode (before configuration)
-    FIXED, //!< Fixed mode (should switch to time mode almost immediately)
-    DISABLED, //!< Time mode disabled
-    SURVEY_IN, //!< Survey-In mode
-    TIME //!< Time mode, after survey-in or after configuring fixed mode
+  enum
+  {
+    INIT,       //!< Initialization mode (before configuration)
+    FIXED,      //!< Fixed mode (should switch to time mode almost immediately)
+    DISABLED,   //!< Time mode disabled
+    SURVEY_IN,  //!< Survey-In mode
+    TIME        //!< Time mode, after survey-in or after configuring fixed mode
   } mode_;
 };
 
 /**
  * @brief Implements functions for High Precision GNSS Rover devices.
  */
-class HpgRovProduct: public virtual ComponentInterface {
- public:
+class HpgRovProduct : public virtual ComponentInterface
+{
+public:
   // Constants for diagnostic updater
   //! Diagnostic updater: RTCM topic frequency min [Hz]
   constexpr static double kRtcmFreqMin = 1;
@@ -1314,21 +1366,19 @@ class HpgRovProduct: public virtual ComponentInterface {
    */
   void initializeRosDiagnostics();
 
- protected:
+protected:
   /**
    * @brief Update the rover diagnostics, including the carrier phase solution
    * status (float or fixed).
    */
-  void carrierPhaseDiagnostics(
-      diagnostic_updater::DiagnosticStatusWrapper& stat);
+  void carrierPhaseDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat);
 
   /**
    * @brief Set the last received message and call rover diagnostic updater
    *
    * @details Publish received NavRELPOSNED messages if enabled
    */
-  void callbackNavRelPosNed(const ublox_msgs::NavRELPOSNED &m);
-
+  void callbackNavRelPosNed(const ublox_msgs::NavRELPOSNED& m);
 
   //! Last relative position (used for diagnostic updater)
   ublox_msgs::NavRELPOSNED last_rel_pos_;
@@ -1341,15 +1391,15 @@ class HpgRovProduct: public virtual ComponentInterface {
   UbloxTopicDiagnostic freq_rtcm_;
 };
 
-class HpPosRecProduct: public virtual HpgRefProduct {
- public:
+class HpPosRecProduct : public virtual HpgRefProduct
+{
+public:
   /**
    * @brief Subscribe to Rover messages, such as NavRELPOSNED.
    */
   void subscribe();
 
- protected:
-
+protected:
   /**
    * @brief Publish a sensor_msgs/NavSatFix message upon receiving a HPPOSLLH UBX message
    */
@@ -1360,7 +1410,7 @@ class HpPosRecProduct: public virtual HpgRefProduct {
    *
    * @details Publish received NavRELPOSNED messages if enabled
    */
-  void callbackNavRelPosNed(const ublox_msgs::NavRELPOSNED9 &m);
+  void callbackNavRelPosNed(const ublox_msgs::NavRELPOSNED9& m);
 
   sensor_msgs::Imu imu_;
 
@@ -1372,18 +1422,19 @@ class HpPosRecProduct: public virtual HpgRefProduct {
  * @brief Implements functions for Time Sync products.
  * @todo partially implemented
  */
-class TimProduct: public virtual ComponentInterface {
+class TimProduct : public virtual ComponentInterface
+{
   /**
    * @brief Get the Time Sync parameters.
    * @todo Currently unimplemented.
    */
-  void getRosParams(); 
- 
+  void getRosParams();
+
   /**
    * @brief Configure Time Sync settings.
    * @todo Currently unimplemented.
    */
-  bool configureUblox(); 
+  bool configureUblox();
 
   /**
    * @brief Subscribe to Time Sync messages.
@@ -1398,16 +1449,16 @@ class TimProduct: public virtual ComponentInterface {
    */
   void initializeRosDiagnostics();
 
- protected:  
+protected:
   /**
-   * @brief 
+   * @brief
    * @details Publish recieved TimTM2 messages if enabled
    */
-  void callbackTimTM2(const ublox_msgs::TimTM2 &m);
- 
+  void callbackTimTM2(const ublox_msgs::TimTM2& m);
+
   sensor_msgs::TimeReference t_ref_;
 };
 
-}
+}  // namespace ublox_node
 
 #endif

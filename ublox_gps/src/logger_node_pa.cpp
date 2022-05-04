@@ -43,15 +43,15 @@ using namespace ublox_node;
 // Raw Data Stream (feature from TUC-ProAut)
 //
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
+  ros::init(argc, argv, "ublox_logger");
 
-    ros::init(argc, argv, "ublox_logger");
-    
-    RawDataStreamPa node(true);
-    node.getRosParams();
-    node.initialize();
+  RawDataStreamPa node(true);
+  node.getRosParams();
+  node.initialize();
 
-    ros::spin();
+  ros::spin();
 
-    return 0;
+  return 0;
 }

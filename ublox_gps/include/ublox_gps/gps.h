@@ -53,21 +53,16 @@
  * This namespace is for I/O communication with the u-blox device, including
  * read callbacks.
  */
-namespace ublox_gps {
+namespace ublox_gps
+{
 //! Possible baudrates for u-blox devices
-constexpr static unsigned int kBaudrates[] = { 4800,
-                                               9600,
-                                               19200,
-                                               38400,
-                                               57600,
-                                               115200,
-                                               230400,
-                                               460800 };
+constexpr static unsigned int kBaudrates[] = { 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800 };
 /**
  * @brief Handles communication with and configuration of the u-blox device
  */
-class Gps {
- public:
+class Gps
+{
+public:
   //! Default timeout for ACK messages in seconds
   constexpr static double kDefaultAckTimeout = 1.0;
   //! Size of write buffer for output messages
@@ -80,7 +75,8 @@ class Gps {
    * @brief If called, when the node shuts down, it will send a command to
    * save the flash memory.
    */
-  void setSaveOnShutdown(bool save_on_shutdown) {
+  void setSaveOnShutdown(bool save_on_shutdown)
+  {
     save_on_shutdown_ = save_on_shutdown;
   }
 
@@ -88,7 +84,10 @@ class Gps {
    * @brief Set the internal flag for enabling or disabling the initial configurations.
    * @param config_on_startup boolean flag
    */
-  void setConfigOnStartup(const bool config_on_startup) { config_on_startup_flag_ = config_on_startup; }
+  void setConfigOnStartup(const bool config_on_startup)
+  {
+    config_on_startup_flag_ = config_on_startup;
+  }
 
   /**
    * @brief Initialize TCP I/O.
@@ -111,8 +110,7 @@ class Gps {
    * @param uart_in the UART In protocol, see CfgPRT for options
    * @param uart_out the UART Out protocol, see CfgPRT for options
    */
-  void initializeSerial(std::string port, unsigned int baudrate,
-                        uint16_t uart_in, uint16_t uart_out);
+  void initializeSerial(std::string port, unsigned int baudrate, uint16_t uart_in, uint16_t uart_out);
 
   /**
    * @brief Reset the Serial I/O port after u-blox reset.
@@ -125,13 +123,13 @@ class Gps {
 
   /**
    * @brief Send rtcm correction message.
-  */
-  bool sendRtcm(const std::vector<uint8_t> &message);
+   */
+  bool sendRtcm(const std::vector<uint8_t>& message);
 
   /**
    * @brief Send SPARTN correction message.
-  */
-  bool sendSpartn(const std::vector<uint8_t> &message);
+   */
+  bool sendSpartn(const std::vector<uint8_t>& message);
 
   /**
    * @brief Closes the I/O port, and initiates save on shutdown procedure
@@ -160,8 +158,7 @@ class Gps {
    * @return true if the GNSS was configured, the device was reset, and the
    * I/O reset successfully
    */
-  bool configGnss(ublox_msgs::CfgGNSS gnss,
-                  const boost::posix_time::time_duration& wait);
+  bool configGnss(ublox_msgs::CfgGNSS gnss, const boost::posix_time::time_duration& wait);
 
   /**
    * @brief Send a message to the receiver to delete the BBR data stored in
@@ -177,8 +174,7 @@ class Gps {
    * @param out_proto_mask the out protocol mask, see CfgPRT message
    * @return true on ACK, false on other conditions.
    */
-  bool configUart1(unsigned int baudrate, uint16_t in_proto_mask,
-                   uint16_t out_proto_mask);
+  bool configUart1(unsigned int baudrate, uint16_t in_proto_mask, uint16_t out_proto_mask);
 
   /**
    * @brief Disable the UART Port. Sets in/out protocol masks to 0. Does not
@@ -196,8 +192,7 @@ class Gps {
    * @param out_proto_mask the out protocol mask, see CfgPRT message
    * @return true on ACK, false on other conditions.
    */
-  bool configUsb(uint16_t tx_ready, uint16_t in_proto_mask,
-                 uint16_t out_proto_mask);
+  bool configUsb(uint16_t tx_ready, uint16_t in_proto_mask, uint16_t out_proto_mask);
 
   /**
    * @brief Configure the device navigation and measurement rate settings.
@@ -315,7 +310,7 @@ class Gps {
   bool setUseAdr(bool enable, float protocol_version);
 
   /**
-   * @brief Configure the U-Blox to UTC time 
+   * @brief Configure the U-Blox to UTC time
    * @return true on ACK, false on other conditions.
    *
    * @note This is part of the expert settings. It is recommended you check
@@ -332,7 +327,7 @@ class Gps {
    * the ublox manual first.
    */
   bool setTimtm2(uint8_t rate);
- 
+
   /**
    * @brief Configure the U-Blox send rate of the message & subscribe to the
    * given message
@@ -340,8 +335,7 @@ class Gps {
    * @param rate the rate in Hz of the message
    */
   template <typename T>
-  void subscribe(typename CallbackHandler_<T>::Callback callback,
-                 unsigned int rate);
+  void subscribe(typename CallbackHandler_<T>::Callback callback, unsigned int rate);
   /**
    * @brief Subscribe to the given Ublox message.
    * @param the callback handler for the message
@@ -357,8 +351,7 @@ class Gps {
    * @param message_id the U-Blox message ID
    */
   template <typename T>
-  void subscribeId(typename CallbackHandler_<T>::Callback callback,
-                   unsigned int message_id);
+  void subscribeId(typename CallbackHandler_<T>::Callback callback, unsigned int message_id);
 
   /**
    * Read a u-blox message of the given type.
@@ -366,12 +359,20 @@ class Gps {
    * @param timeout the amount of time to wait for the desired message
    */
   template <typename T>
-  bool read(T& message,
-            const boost::posix_time::time_duration& timeout = default_timeout_);
+  bool read(T& message, const boost::posix_time::time_duration& timeout = default_timeout_);
 
-  bool isInitialized() const { return worker_ != 0; }
-  bool isConfigured() const { return isInitialized() && configured_; }
-  bool isOpen() const { return worker_->isOpen(); }
+  bool isInitialized() const
+  {
+    return worker_ != 0;
+  }
+  bool isConfigured() const
+  {
+    return isInitialized() && configured_;
+  }
+  bool isOpen() const
+  {
+    return worker_->isOpen();
+  }
 
   /**
    * Poll a u-blox message of the given type.
@@ -392,8 +393,7 @@ class Gps {
    * defaults to empty
    * @param timeout the amount of time to wait for the desired message
    */
-  bool poll(uint8_t class_id, uint8_t message_id,
-            const std::vector<uint8_t>& payload = std::vector<uint8_t>());
+  bool poll(uint8_t class_id, uint8_t message_id, const std::vector<uint8_t>& payload = std::vector<uint8_t>());
 
   /**
    * @brief Send the given configuration message.
@@ -412,8 +412,7 @@ class Gps {
    * @param msg_id the expected message ID of the ACK
    * @return true if expected ACK received, false otherwise
    */
-  bool waitForAcknowledge(const boost::posix_time::time_duration& timeout,
-                          uint8_t class_id, uint8_t msg_id);
+  bool waitForAcknowledge(const boost::posix_time::time_duration& timeout, uint8_t class_id, uint8_t msg_id);
 
   /**
    * @brief Set the callback function which handles raw data.
@@ -421,19 +420,21 @@ class Gps {
    */
   void setRawDataCallback(const Worker::Callback& callback);
 
- private:
+private:
   //! Types for ACK/NACK messages, WAIT is used when waiting for an ACK
-  enum AckType {
-    NACK, //! Not acknowledged
-    ACK, //! Acknowledge
-    WAIT //! Waiting for ACK
+  enum AckType
+  {
+    NACK,  //! Not acknowledged
+    ACK,   //! Acknowledge
+    WAIT   //! Waiting for ACK
   };
 
   //! Stores ACK/NACK messages
-  struct Ack {
-    AckType type; //!< The ACK type
-    uint8_t class_id; //!< The class ID of the ACK
-    uint8_t msg_id; //!< The message ID of the ACK
+  struct Ack
+  {
+    AckType type;      //!< The ACK type
+    uint8_t class_id;  //!< The class ID of the ACK
+    uint8_t msg_id;    //!< The message ID of the ACK
   };
 
   /**
@@ -451,19 +452,19 @@ class Gps {
    * @brief Callback handler for UBX-ACK message.
    * @param m the message to process
    */
-  void processAck(const ublox_msgs::Ack &m);
+  void processAck(const ublox_msgs::Ack& m);
 
   /**
    * @brief Callback handler for UBX-NACK message.
    * @param m the message to process
    */
-  void processNack(const ublox_msgs::Ack &m);
+  void processNack(const ublox_msgs::Ack& m);
 
   /**
    * @brief Callback handler for UBX-UPD-SOS-ACK message.
    * @param m the message to process
    */
-  void processUpdSosAck(const ublox_msgs::UpdSOS_Ack &m);
+  void processUpdSosAck(const ublox_msgs::UpdSOS_Ack& m);
 
   /**
    * @brief Execute save on shutdown procedure.
@@ -486,7 +487,6 @@ class Gps {
   //!< Whether or not initial configuration to the hardware is done
   bool config_on_startup_flag_;
 
-
   //! The default timeout for ACK messages
   static const boost::posix_time::time_duration default_timeout_;
   //! Stores last received ACK accessed by multiple threads
@@ -499,40 +499,46 @@ class Gps {
 };
 
 template <typename T>
-void Gps::subscribe(
-    typename CallbackHandler_<T>::Callback callback, unsigned int rate) {
-  if (!setRate(T::CLASS_ID, T::MESSAGE_ID, rate)) return;
+void Gps::subscribe(typename CallbackHandler_<T>::Callback callback, unsigned int rate)
+{
+  if (!setRate(T::CLASS_ID, T::MESSAGE_ID, rate))
+    return;
   subscribe<T>(callback);
 }
 
 template <typename T>
-void Gps::subscribe(typename CallbackHandler_<T>::Callback callback) {
+void Gps::subscribe(typename CallbackHandler_<T>::Callback callback)
+{
   callbacks_.insert<T>(callback);
 }
 
 template <typename T>
-void Gps::subscribeId(typename CallbackHandler_<T>::Callback callback,
-                      unsigned int message_id) {
+void Gps::subscribeId(typename CallbackHandler_<T>::Callback callback, unsigned int message_id)
+{
   callbacks_.insert<T>(callback, message_id);
 }
 
 template <typename ConfigT>
-bool Gps::poll(ConfigT& message,
-               const std::vector<uint8_t>& payload,
-               const boost::posix_time::time_duration& timeout) {
-  if (!poll(ConfigT::CLASS_ID, ConfigT::MESSAGE_ID, payload)) return false;
+bool Gps::poll(ConfigT& message, const std::vector<uint8_t>& payload, const boost::posix_time::time_duration& timeout)
+{
+  if (!poll(ConfigT::CLASS_ID, ConfigT::MESSAGE_ID, payload))
+    return false;
   return read(message, timeout);
 }
 
 template <typename T>
-bool Gps::read(T& message, const boost::posix_time::time_duration& timeout) {
-  if (!worker_) return false;
+bool Gps::read(T& message, const boost::posix_time::time_duration& timeout)
+{
+  if (!worker_)
+    return false;
   return callbacks_.read(message, timeout);
 }
 
 template <typename ConfigT>
-bool Gps::configure(const ConfigT& message, bool wait) {
-  if (!worker_) return false;
+bool Gps::configure(const ConfigT& message, bool wait)
+{
+  if (!worker_)
+    return false;
 
   // Reset ack
   Ack ack;
@@ -542,20 +548,19 @@ bool Gps::configure(const ConfigT& message, bool wait) {
   // Encode the message
   std::vector<unsigned char> out(kWriterSize);
   ublox::Writer writer(out.data(), out.size());
-  if (!writer.write(message)) {
-    ROS_ERROR("Failed to encode config message 0x%02x / 0x%02x",
-              message.CLASS_ID, message.MESSAGE_ID);
+  if (!writer.write(message))
+  {
+    ROS_ERROR("Failed to encode config message 0x%02x / 0x%02x", message.CLASS_ID, message.MESSAGE_ID);
     return false;
   }
   // Send the message to the device
   worker_->send(out.data(), writer.end() - out.data());
 
-  if (!wait) return true;
+  if (!wait)
+    return true;
 
   // Wait for an acknowledgment and return whether or not it was received
-  return waitForAcknowledge(default_timeout_,
-                            message.CLASS_ID,
-                            message.MESSAGE_ID);
+  return waitForAcknowledge(default_timeout_, message.CLASS_ID, message.MESSAGE_ID);
 }
 
 }  // namespace ublox_gps
