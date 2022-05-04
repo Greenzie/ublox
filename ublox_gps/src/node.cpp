@@ -1525,7 +1525,6 @@ void AdrUdrProduct::callbackEsfMEAS(const ublox_msgs::EsfMEAS& m)
       // t_ref_.header.seq = m.risingEdgeCount;
       // t_ref_.header.stamp = ros::Time::now();
       // t_ref_.header.frame_id = frame_id;
-<<<<<<< HEAD
 
       // t_ref_.time_ref = ros::Time((m.wnR * 604800 + m.towMsR / 1000), (m.towMsR % 1000) * 1000000 + m.towSubMsR);
 
@@ -1533,15 +1532,6 @@ void AdrUdrProduct::callbackEsfMEAS(const ublox_msgs::EsfMEAS& m)
       // src << "TIM" << int(m.ch);
       // t_ref_.source = src.str();
 
-=======
-
-      // t_ref_.time_ref = ros::Time((m.wnR * 604800 + m.towMsR / 1000), (m.towMsR % 1000) * 1000000 + m.towSubMsR);
-
-      // std::ostringstream src;
-      // src << "TIM" << int(m.ch);
-      // t_ref_.source = src.str();
-
->>>>>>> f6a3af656eafbf24e1a717cdaa6d91b5c2122fd0
       t_ref_.header.stamp = ros::Time::now();  // create a new timestamp
       t_ref_.header.frame_id = frame_id;
 
