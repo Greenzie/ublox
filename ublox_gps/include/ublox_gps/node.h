@@ -53,6 +53,7 @@
 #include <std_msgs/UInt8MultiArray.h>
 // Other U-Blox package includes
 #include <ublox_msgs/ublox_msgs.h>
+#include <ublox_msgs/GetVersionInfo.h>
 // Ublox GPS includes
 #include <ublox_gps/gps.h>
 #include <ublox_gps/utils.h>
@@ -548,6 +549,12 @@ public:
    * @brief Print an INF message to the ROS console.
    */
   void printInf(const ublox_msgs::Inf& m, uint8_t id);
+
+  /**
+   * @brief A ROS service that helps developers reliably get version info from the ublox device. 
+   */
+  bool getVersionInfo(ublox_msgs::GetVersionInfo::Request  &req,
+         ublox_msgs::GetVersionInfo::Response &res);
 
 private:
   /**

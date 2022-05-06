@@ -378,6 +378,57 @@ void UbloxNode::initializeRosDiagnostics()
     components_[i]->initializeRosDiagnostics();
 }
 
+bool UbloxNode::getVersionInfo(ublox_msgs::GetVersionInfo::Request  &req,
+         ublox_msgs::GetVersionInfo::Response &res)
+{
+  ublox_msgs::MonVER monVer;
+  if (!gps.poll(monVer))
+  {
+    throw std::runtime_error("Failed to poll MonVER for GPS version info.");
+  }
+
+  // convert the ready made info from unsigned char* to const char*
+  res.software = (const char*)(monVer.swVersion.c_array());
+  res.hardware = (const char*)(monVer.hwVersion.c_array());
+
+  // Convert extension to vector of strings
+  std::vector<std::string> extension;
+  extension.reserve(monVer.extension.size());
+  for (std::size_t i = 0; i < monVer.extension.size(); ++i)
+  {
+    // Find the end of the string (null character)
+    unsigned char* end = std::find(monVer.extension[i].field.begin(), monVer.extension[i].field.end(), '\0');
+    extension.push_back(std::string(monVer.extension[i].field.begin(), end));
+  }
+
+  // Get rest of version info
+  // Up to 2nd to last line, b.c. last 1-2 lines contain config support info like "GPS;GLO;GAL;BDS" and "SBAS;QZSS"
+  for (std::size_t i = 0; i < extension.size() - 2; ++i)
+  {
+    // parse formatted strings
+    std::vector<std::string> strs;
+    boost::split(strs, extension[i], boost::is_any_of("="));
+    if (strs.size() > 1)
+    {
+      if (strs[0].compare(std::string("PROTVER")) == 0)
+      {
+        // protocol_version < 18 may not include the rest of the version info
+        // see UbloxNode::processMonVer() for inferred version-info difference
+        res.protocol = strs[1]; 
+      }
+      else if (strs[0].compare(std::string("FWVER")) == 0)
+      {
+        res.firmware = strs[1]; 
+      }
+      else if (strs[0].compare(std::string("MOD")) == 0)
+      {
+        res.device_model = strs[1]; 
+      }
+    }
+  }
+  return true;
+}
+
 void UbloxNode::processMonVer()
 {
   ublox_msgs::MonVER monVer;
@@ -606,6 +657,7 @@ void UbloxNode::initialize()
   // Params must be set before initializing IO
   getRosParams();
   initializeIo();
+  ros::ServiceServer service = nh->advertiseService("poll_gps_version", &UbloxNode::getVersionInfo, this);
   // Must process Mon VER before setting firmware/hardware params
   processMonVer();
   if (protocol_version_ <= 14)
