@@ -1,3 +1,9 @@
+ros-noetic-ublox-gps (1.5.0-greenzie-focal2) focal; urgency=medium
+
+  * Creating service for GPS device version info. 
+
+ -- Jonathan Sanabria <jonathan@greenzie.com>  Wed, 11 May 2022 11:30:49 -0400
+
 ros-noetic-ublox-gps (1.5.0-greenzie-focal1) focal; urgency=medium
 
   * Debianize
