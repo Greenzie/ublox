@@ -11,8 +11,8 @@ Package: ros-noetic-ublox
 Architecture: any
 Depends: ${shlibs:Depends},
     ${misc:Depends},
-    ros-noetic-ublox-gps (= ${binary:Version}),
-    ros-noetic-ublox-msgs (= ${binary:Version}),
-    ros-noetic-ublox-msg-filters (= ${binary:Version}),
-    ros-noetic-ublox-serialization (= ${binary:Version})
+    ros-noetic-ublox-gps,
+    ros-noetic-ublox-msgs,
+    ros-noetic-ublox-msg-filters,
+    ros-noetic-ublox-serialization
 Description: Provides a ublox_gps node for u-blox GPS receivers, messages, and serialization packages for the binary UBX protocol.

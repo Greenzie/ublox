@@ -1,3 +1,9 @@
+ros-noetic-ublox-serialization (1.5.0-greenzie-focal2) focal; urgency=medium
+
+  * Removed version constraint
+
+ -- Kristian Kabbabe <kristian@greenzie.com>  Wed, 11 May 2022 12:17:26 -0400
+
 ros-noetic-ublox-serialization (1.5.0-greenzie-focal1) focal; urgency=medium
 
   * Debianize
