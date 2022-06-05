@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 9.0.0),
     ros-noetic-message-generation,
     ros-noetic-sensor-msgs,
     ros-noetic-std-msgs,
-    ros-noetic-ublox-serialization (= ${binary:Version})
+    ros-noetic-ublox-serialization
 Homepage: http://ros.org/wiki/ublox
 Standards-Version: 3.9.2
 
@@ -18,5 +18,5 @@ Depends: ${shlibs:Depends},
     ros-noetic-message-runtime,
     ros-noetic-sensor-msgs,
     ros-noetic-std-msgs,
-    ros-noetic-ublox-serialization (= ${binary:Version})
+    ros-noetic-ublox-serialization
 Description: ublox_msgs contains raw messages for u-blox GNSS devices.
