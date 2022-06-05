@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation ublox_serialization s
 add_service_files(
     FILES
     GetVersionInfo.srv
+    ConfigureDevice.srv
 )
 add_message_files(DIRECTORY msg)
 generate_messages(DEPENDENCIES std_msgs sensor_msgs)

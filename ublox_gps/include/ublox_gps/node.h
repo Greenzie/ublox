@@ -54,6 +54,7 @@
 // Other U-Blox package includes
 #include <ublox_msgs/ublox_msgs.h>
 #include <ublox_msgs/GetVersionInfo.h>
+#include <ublox_msgs/ConfigureDevice.h>
 // Ublox GPS includes
 #include <ublox_gps/gps.h>
 #include <ublox_gps/utils.h>
@@ -555,6 +556,11 @@ public:
    */
   bool getVersionInfo(ublox_msgs::GetVersionInfo::Request  &req,
          ublox_msgs::GetVersionInfo::Response &res);
+  /**
+   * @brief A ROS service that helps developers configure the gps device. (tested currently on zed-f9p) 
+   */
+  bool configureDevice(ublox_msgs::ConfigureDevice::Request  &req,
+        ublox_msgs::ConfigureDevice::Response &res);
 
 private:
   /**

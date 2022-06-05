@@ -137,6 +137,7 @@ void Gps::initializeSerial(std::string port, unsigned int baudrate, uint16_t uar
     tcgetattr(fd, &tio);
     cfmakeraw(&tio);
     tcsetattr(fd, TCSANOW, &tio);
+    ROS_INFO("U-Blox: tcgetattr,  cfmakeraw,  tcsetattr %s", port.c_str());
   }
 
   // Set the I/O worker
