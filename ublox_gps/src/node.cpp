@@ -435,9 +435,49 @@ bool UbloxNode::configureDevice(ublox_msgs::ConfigureDevice::Request  &req,
 {
   ublox_msgs::CfgCFG cfgCfg;// for saving
   ublox_msgs::CfgRATE cfgRate;
-  const std::vector<uint8_t>& payload(1, 1);
-  boost::posix_time::seconds(15)
-    else if (!gps.configGnss(cfg_gnss, boost::posix_time::seconds(15)))
+  const std::vector<uint8_t> payload(1, 1);
+  boost::posix_time::seconds wait(15);
+  //  if(!gps.configGnss(cfg_gnss, boost::posix_time::seconds(15)))
+  /*
+  not sure if necessary to cfgcfg
+    if (!configure(cfgCfg))
+    {
+      ;
+    }
+    */
+  cfgRate.measRate = 25;
+  cfgRate.navRate = 100;
+  cfgRate.timeRef = ublox_msgs::CfgRATE::TIME_REF_UTC;
+  if (!gps.configure(cfgRate))
+  {
+    ROS_WARN("configureDevice >> if (!configure(cfgRate))");
+    return false;
+  }
+  else
+  {
+    // Cold reset the GNSS
+    ROS_WARN("configureDevice >> GNSS re-configured, cold resetting device.");
+    if (!gps.configReset(ublox_msgs::CfgRST::NAV_BBR_COLD_START, ublox_msgs::CfgRST::RESET_MODE_GNSS))
+    {
+      ROS_WARN("configureDevice >> config reset failed - if (!gps.configReset(CfgRST::NAV_BBR_COLD_START, CfgRST::RESET_MODE_GNSS)) ");
+      return false;
+    }
+    ros::Duration(1.0).sleep();
+    // Reset the I/O
+    gps.reset(wait);
+    if( !gps.isConfigured())
+    {
+      ROS_WARN("configureDevice >> not isConfigured()");
+      return false;
+    }
+    else
+    {
+      ROS_WARN("configureDevice >> YES isConfigured()");
+    }
+  }
+
+  return true;
+  /*
 
  // Configure the GNSS settingshttps://mail.google.com/mail/u/0/#inbox
   ROS_DEBUG("configureDevice >> Re-configuring GNSS.");
@@ -458,6 +498,7 @@ bool UbloxNode::configureDevice(ublox_msgs::ConfigureDevice::Request  &req,
   {
     ROS_WARN("configureDevice >> YES isConfigured()");
   }
+  */
 
 /*
 
@@ -576,7 +617,9 @@ uint8 DEV_SPI_FLASH = 16      # device SPI Flash
 
 uint8 CLASS_ID = 6
 uint8 MESSAGE_ID = 8
-
+cfgRate.measRate = 25;
+cfgRate.navRate = 100;
+cfgRate.timeRef = ublox_msgs::cfgRate::TIME_REF_UTC;
 uint16 measRate           # Measurement Rate, GPS measurements are
                           # taken every measRate milliseconds [ms]
 uint16 navRate            # Navigation Rate, in number of measurement
@@ -866,7 +909,7 @@ void UbloxNode::initialize()
   getRosParams();
   initializeIo();
   ros::ServiceServer service = nh->advertiseService("poll_version", &UbloxNode::getVersionInfo, this);
-  ros::ServiceServer service2 = nh->advertiseService("configure_device", &UbloxNode::ConfigureDevice, this);
+  ros::ServiceServer service2 = nh->advertiseService("configure_device", &UbloxNode::configureDevice, this);
   // Must process Mon VER before setting firmware/hardware params
   processMonVer();
   if (protocol_version_ <= 14)
