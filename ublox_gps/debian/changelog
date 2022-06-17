@@ -1,3 +1,9 @@
+ros-noetic-ublox-gps (1.5.0-greenzie-focal4) focal; urgency=medium
+
+  * Updating service name to poll_version.
+
+ -- Jonathan Sanabria <jonathan@greenzie.com>  Thu, 16 Jun 2022 20:43:35 -0400
+
 ros-noetic-ublox-gps (1.5.0-greenzie-focal3) focal; urgency=medium
 
   * Removed version constraint
