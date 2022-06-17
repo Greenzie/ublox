@@ -657,7 +657,7 @@ void UbloxNode::initialize()
   // Params must be set before initializing IO
   getRosParams();
   initializeIo();
-  ros::ServiceServer service = nh->advertiseService("poll_gps_version", &UbloxNode::getVersionInfo, this);
+  ros::ServiceServer service = nh->advertiseService("poll_version", &UbloxNode::getVersionInfo, this);
   // Must process Mon VER before setting firmware/hardware params
   processMonVer();
   if (protocol_version_ <= 14)
