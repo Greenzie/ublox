@@ -122,9 +122,14 @@ namespace ublox_gps
     void doWrite();
 
     /**
+   * @brief Send all the data in the output buffer. Helper to populate the cached data
+   */
+    void doWriteOnVirtual();
+
+    /**
    * @brief Send all the data from the specified buffer into specified stream.
    */
-    void doWrite(boost::shared_ptr<StreamT> stream, boost::shared_ptr<boost::asio::io_service> io_service, std::vector<unsigned char> &out, boost::condition &write_condition, Mutex &write_mutex);
+    void doWrite(boost::shared_ptr<StreamT> &stream, std::vector<unsigned char> &out, boost::condition &write_condition, Mutex &write_mutex);
 
     /**
    * @brief Close the I/O stream.
@@ -210,7 +215,7 @@ namespace ublox_gps
   }
 
   template <typename StreamT>
-  void AsyncWorker<StreamT>::doWrite(boost::shared_ptr<StreamT> stream, boost::shared_ptr<boost::asio::io_service> io_service, std::vector<unsigned char> &out, boost::condition &write_condition, Mutex &write_mutex)
+  void AsyncWorker<StreamT>::doWrite(boost::shared_ptr<StreamT> &stream, std::vector<unsigned char> &out, boost::condition &write_condition, Mutex &write_mutex)
   {
     ScopedLock lock(write_mutex);
     // Do nothing if out buffer is empty
@@ -237,11 +242,36 @@ namespace ublox_gps
   template <typename StreamT>
   void AsyncWorker<StreamT>::doWrite()
   {
-    this->doWrite(stream_, io_service_, out_, write_condition_, write_mutex_);
+    AsyncWorker<StreamT>::doWrite(stream_, io_service_, out_, write_condition_, write_mutex_);
   }
 
   template <>
   inline void AsyncWorker<boost::asio::ip::udp::socket>::doWrite()
+  {
+    ScopedLock lock(write_mutex_);
+    // Do nothing if out buffer is empty
+    if (out_.size() == 0)
+    {
+      return;
+    }
+    // Write all the data in the out buffer
+    stream_->send(boost::asio::buffer(out_.data(), out_.size()));
+
+    if (debug >= 2)
+    {
+      // Print the data that was sent
+      std::ostringstream oss;
+      for (std::vector<unsigned char>::iterator it = out_.begin(); it != out_.end(); ++it)
+        oss << boost::format("%02x") % static_cast<unsigned int>(*it) << " ";
+      ROS_DEBUG("U-Blox sent %li bytes: \n%s", out_.size(), oss.str().c_str());
+    }
+    // Clear the buffer & unlock
+    out_.clear();
+    write_condition_.notify_all();
+  }
+
+  template <>
+  inline void AsyncWorker<boost::asio::ip::tcp::socket>::doWrite()
   {
     ScopedLock lock(write_mutex_);
     // Do nothing if out buffer is empty
@@ -274,7 +304,20 @@ namespace ublox_gps
                                          this,
                                          boost::asio::placeholders::error,
                                          boost::asio::placeholders::bytes_transferred));
+
+    if (nullptr != virtual_forwarding_stream_)
+    {
+      // we have a virtual stream that we want to write to, copy the in data so that only the virtual out vector is cleared after the write
+      virtual_out_ = in_;
+
+      virtual_forwarding_io_service_->post(boost::bind(&AsyncWorker<StreamT>::doWrite,
+                                                       this, boost::ref(virtual_forwarding_stream_),
+                                                       boost::ref(virtual_out_),
+                                                       boost::ref(virtual_write_condition_),
+                                                       boost::ref(virtual_write_mutex_)));
+    }
   }
+
   template <>
   inline void AsyncWorker<boost::asio::ip::udp::socket>::doRead()
   {
@@ -318,15 +361,6 @@ namespace ublox_gps
         read_callback_(in_.data(), in_buffer_size_);
 
       read_condition_.notify_all();
-    }
-
-    if (nullptr != virtual_forwarding_stream_)
-    {
-      // we have a virtual stream that we want to write to, copy the in data so that only the virtual out vector is cleared after the write
-      virtual_out_ = in_;
-      virtual_forwarding_io_service_->post(boost::bind(&AsyncWorker<StreamT>::doWrite, this, boost::ref(virtual_forwarding_stream_), boost::ref(virtual_forwarding_io_service_), boost::ref(virtual_out_), boost::ref(virtual_write_condition_), boost::ref(virtual_write_mutex_)));
-      //this->doWrite(virtual_forwarding_stream_, virtual_forwarding_io_service_,
-      //              virtual_out_, virtual_write_condition_, virtual_write_mutex_);
     }
 
     // Check for buffer overflow
