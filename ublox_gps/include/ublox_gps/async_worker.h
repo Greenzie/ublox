@@ -242,7 +242,7 @@ namespace ublox_gps
   template <typename StreamT>
   void AsyncWorker<StreamT>::doWrite()
   {
-    AsyncWorker<StreamT>::doWrite(stream_, io_service_, out_, write_condition_, write_mutex_);
+    AsyncWorker<StreamT>::doWrite(stream_, out_, write_condition_, write_mutex_);
   }
 
   template <>
