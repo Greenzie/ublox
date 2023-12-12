@@ -218,6 +218,8 @@ namespace ublox_gps
   void AsyncWorker<StreamT>::doWrite(boost::shared_ptr<StreamT> &stream, std::vector<unsigned char> &out, boost::condition &write_condition, Mutex &write_mutex)
   {
     ScopedLock lock(write_mutex);
+    ROS_ERROR("doWrite > about to write %s", virtual_out_.data());
+
     // Do nothing if out buffer is empty
     if (out.size() == 0)
     {
@@ -305,14 +307,16 @@ namespace ublox_gps
                                          boost::asio::placeholders::error,
                                          boost::asio::placeholders::bytes_transferred));
 
-    if (nullptr != virtual_forwarding_stream_)
+    // we just read , so lets foward that data to the virtual port if the user made one
+    if (nullptr != virtual_forwarding_stream_ && in_.size() != 0)
     {
       // we have a virtual stream that we want to write to, copy the in data so that only the virtual out vector is cleared after the write
       virtual_out_ = in_;
 
+      //ROS_ERROR("about to write %s", virtual_out_.data());
       virtual_forwarding_io_service_->post(boost::bind(&AsyncWorker<StreamT>::doWrite,
                                                        this, boost::ref(virtual_forwarding_stream_),
-                                                       boost::ref(virtual_out_),
+                                                       virtual_out_, // bind a copy
                                                        boost::ref(virtual_write_condition_),
                                                        boost::ref(virtual_write_mutex_)));
     }
