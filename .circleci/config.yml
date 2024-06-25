@@ -1,55 +1,86 @@
 version: 2.1
 
+orbs:
+  greenzie: greenzie/build_and_publish_debs@0.0.7
+
+parameters:
+  manual-bobcat-deploy:
+    type: boolean
+    default: false
+  # Use this parameter to change the branch that the deployment jobs are triggered on
+  # It's useful for testing the deployment jobs on a different branch before merging
+  filter-branch:
+    type: string
+    default: noetic
+
 workflows:
   version: 2
   pushbuild:
+    unless: << pipeline.parameters.manual-bobcat-deploy >>
     jobs:
-      - debian_build
-      - deploy:
+      # Build jobs
+      - greenzie/debian_build:
+          name: "amd_debian_build"
+          platform: amd64
+          executor: greenzie/debianize_amd64
+
+      - greenzie/debian_build:
+          name: "arm64_debian_build"
+          platform: arm64
+          executor: greenzie/debianize_arm64
+
+      # Deployment jobs
+      - greenzie/debian_deploy_experimental:
+          name: "deploy_amd64_greenzie"
+          context: GREENZIE
           filters:
             branches:
               only:
-                - noetic
+                - << pipeline.parameters.filter-branch >>
           requires:
-            - debian_build
+            - amd_debian_build
 
-jobs:
-  debian_build:
-    docker:
-      - image: greenzie/debianize-experimental:focal-noetic
-        auth:
-          username: $DOCKERHUB_GREENZIE_USERNAME
-          password: $DOCKERHUB_GREENZIE_PASSWORD
-    resource_class: small
-    steps:
-      - checkout
-      - run:
-          name: "Generate Changelogs"
-          command: greenzie-release changelog -r "${ROS_DISTRO}"
-      - run:
-          name: "Package debs (debuild)"
-          command: GITHUB_WORKSPACE="$PWD" greenzie-debianize all
-      - store_artifacts:
-          path: /debians
-      - persist_to_workspace:
-          root: /debians
-          paths:
-            - '*'
+      - greenzie/debian_deploy_experimental:
+          name: "deploy_arm64_greenzie"
+          context: GREENZIE
+          architecture: arm64
+          filters:
+            branches:
+              only:
+                - << pipeline.parameters.filter-branch >>
+          requires:
+            - arm64_debian_build
 
-  deploy:
-    docker:
-      - image: greenzie/aptly:3.19.1-focal-noetic
-        auth:
-          username: $DOCKERHUB_GREENZIE_USERNAME
-          password: $DOCKERHUB_GREENZIE_PASSWORD
-    resource_class: small
-    steps:
-      - add_ssh_keys
-      - attach_workspace:
-          at: /debians
-      - run:
-          name: Deploy to aptly.greenzie.com
-          environment:
-            SERVER_HOSTNAME: aptly.greenzie.com
-          command: |
-            aptly repo deploy -r experimental -n "${CIRCLE_BUILD_NUM}" -p "/debians"
+      - greenzie/debian_deploy_experimental:
+          name: "deploy_all_bobcat"
+          context: GREENZIE
+          server_hostname: bobcat
+          filters:
+            branches:
+              only:
+                - << pipeline.parameters.filter-branch >>
+          requires:
+            - arm64_debian_build
+            - amd_debian_build
+  
+  manualdeploy:
+    when: << pipeline.parameters.manual-bobcat-deploy >>
+    jobs:
+      # Build jobs
+      - greenzie/debian_build:
+          name: "amd_debian_build"
+          platform: amd64
+          executor: greenzie/debianize_amd64
+
+      - greenzie/debian_build:
+          name: "arm64_debian_build"
+          platform: arm64
+          executor: greenzie/debianize_arm64
+
+      - greenzie/debian_deploy_experimental:
+          context: GREENZIE
+          name: "manual_deploy_all_bobcat"
+          server_hostname: bobcat
+          requires:
+            - arm64_debian_build
+            - amd_debian_build
