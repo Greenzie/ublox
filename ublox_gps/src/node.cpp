@@ -155,15 +155,16 @@ void UbloxNode::addProductInterface(std::string product_category, std::string re
     components_.push_back(ComponentPtr(new HpPosRecProduct));
   else if (product_category.compare("TIM") == 0)
     components_.push_back(ComponentPtr(new TimProduct));
-  else if (product_category.compare("ADR") == 0 || product_category.compare("UDR") == 0)
+  else if (product_category.compare("ADR") == 0 ||
+           product_category.compare("UDR") == 0 ||
+           product_category.compare("LAP") == 0)
     components_.push_back(ComponentPtr(new AdrUdrProduct(protocol_version_)));
   else if (product_category.compare("FTS") == 0)
     components_.push_back(ComponentPtr(new FtsProduct));
   else if (product_category.compare("SPG") != 0)
     ROS_WARN("Product category %s %s from MonVER message not recognized %s",
-             product_category.c_str(),
-             ref_rov.c_str(),
-             "options are HPG REF, HPG ROV, HPG #.#, HDG #.#, TIM, ADR, UDR, FTS, SPG");
+             product_category.c_str(), ref_rov.c_str(),
+             "options are HPG REF, HPG ROV, HPG #.#, HDG #.#, TIM, ADR, UDR, LAP, FTS, SPG");
 }
 
 void UbloxNode::getRosParams()
@@ -320,6 +321,10 @@ void UbloxNode::subscribe()
   nh->param("publish/nav/clock", enabled["nav_clock"], enabled["nav"]);
   if (enabled["nav_clock"])
     gps.subscribe<ublox_msgs::NavCLOCK>(boost::bind(publish<ublox_msgs::NavCLOCK>, _1, "navclock"), kSubscribeRate);
+
+  nh->param("publish/nmea", enabled["nmea"], false);
+  if (enabled["nmea"])
+    gps.subscribe_nmea(boost::bind(publish_nmea, _1, "nmea"));
 
   // INF messages
   nh->param("inf/debug", enabled["inf_debug"], false);
@@ -1234,8 +1239,11 @@ void UbloxFirmware8::getRosParams()
 
     std::vector<uint8_t> bdsTalkerId;
     getRosUint("nmea/bds_talker_id", bdsTalkerId);
-    cfg_nmea_.bdsTalkerId[0] = bdsTalkerId[0];
-    cfg_nmea_.bdsTalkerId[1] = bdsTalkerId[1];
+    if(bdsTalkerId.size() >= 2) {
+      cfg_nmea_.bdsTalkerId[0] = bdsTalkerId[0];
+      cfg_nmea_.bdsTalkerId[1] = bdsTalkerId[1];
+    }
+
   }
 }
 
@@ -1433,6 +1441,12 @@ void AdrUdrProduct::subscribe()
   nh->param("publish/nav/att", enabled["nav_att"], enabled["nav"]);
   if (enabled["nav_att"])
     gps.subscribe<ublox_msgs::NavATT>(boost::bind(publish<ublox_msgs::NavATT>, _1, "navatt"), kSubscribeRate);
+
+  // Subscribe to ESF ALG messages
+  nh->param("publish/esf/alg", enabled["esf_alg"], enabled["esf"]);
+  if (enabled["esf_alg"])
+    gps.subscribe<ublox_msgs::EsfALG>(boost::bind(
+        publish<ublox_msgs::EsfALG>, _1, "esfalg"), kSubscribeRate);
 
   // Subscribe to ESF INS messages
   nh->param("publish/esf/ins", enabled["esf_ins"], enabled["esf"]);

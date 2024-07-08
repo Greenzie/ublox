@@ -167,6 +167,15 @@ public:
   }
 
   /**
+   * @brief Add a callback handler for nmea messages
+   * @param callback the callback handler for the message
+   */
+  void set_nmea_callback(boost::function<void(const std::string&)> callback) {
+    boost::mutex::scoped_lock lock(callback_mutex_);
+    callback_nmea_ = callback;
+  }
+
+  /**
    * @brief Calls the callback handler for the message in the reader.
    * @param reader a reader containing a u-blox message
    */
@@ -178,6 +187,27 @@ public:
     for (Callbacks::iterator callback = callbacks_.lower_bound(key); callback != callbacks_.upper_bound(key);
          ++callback)
       callback->second->handle(reader);
+  }
+
+  /**
+   * @brief Calls the callback handler for the nmea messages in the reader.
+   * @param reader a reader containing an nmea message
+   */
+  void handle_nmea(ublox::Reader& reader) {
+    boost::mutex::scoped_lock lock(callback_mutex_);
+    if(callback_nmea_.empty())
+        return;
+
+    const std::string& buffer = reader.getUnusedData();
+    size_t nmea_start = buffer.find('$', 0);
+    size_t nmea_end = buffer.find('\n', nmea_start);
+    while(nmea_start != std::string::npos && nmea_end != std::string::npos) {
+        std::string sentence = buffer.substr(nmea_start, nmea_end - nmea_start + 1);
+        callback_nmea_(sentence);
+
+        nmea_start = buffer.find('$', nmea_end+1);
+        nmea_end = buffer.find('\n', nmea_start);
+    }
   }
 
   /**
@@ -233,6 +263,7 @@ public:
 
       handle(reader);
     }
+    handle_nmea(reader);
 
     // delete read bytes from ASIO input buffer
     std::copy(reader.pos(), reader.end(), data);
@@ -245,6 +276,9 @@ private:
   // Call back handlers for u-blox messages
   Callbacks callbacks_;
   boost::mutex callback_mutex_;
+  
+  //! Callback handler for nmea messages
+  boost::function<void(const std::string&)> callback_nmea_;
 };
 
 }  // namespace ublox_gps

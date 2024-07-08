@@ -185,9 +185,11 @@ public:
    * @param options A struct containing the parameters sync_a and sync_b
    * which represent the sync bytes indicating the beginning of the message
    */
-  Reader(const uint8_t* data, uint32_t count, const Options& options = Options())
-    : data_(data), count_(count), found_(false), options_(options)
+  Reader(const uint8_t *data, uint32_t count, 
+         const Options &options = Options()) : 
+      data_(data), count_(count), found_(false), options_(options)
   {
+          unused_data_.reserve(1024);
   }
 
   typedef const uint8_t* iterator;
@@ -218,6 +220,9 @@ public:
           continue;
         }
         break;
+      }
+      else {
+          unused_data_.push_back(data_[0]);
       }
     }
 
@@ -368,10 +373,14 @@ public:
       return false;
     return (classId() == class_id && messageId() == message_id);
   }
+  
+  const std::string& getUnusedData() const { return unused_data_; }
 
 private:
   //! The buffer of message bytes
-  const uint8_t* data_;
+  const uint8_t *data_;
+  //! Unused data from the read buffer, contains nmea messages.
+  std::string unused_data_;
   //! the number of bytes in the buffer, //! decrement as the buffer is read
   uint32_t count_;
   //! Whether or not a message has been found

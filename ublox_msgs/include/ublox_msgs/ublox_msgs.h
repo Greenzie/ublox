@@ -99,6 +99,7 @@
 #include <ublox_msgs/AidEPH.h>
 #include <ublox_msgs/AidHUI.h>
 
+#include <ublox_msgs/EsfALG.h>
 #include <ublox_msgs/EsfINS.h>
 #include <ublox_msgs/EsfMEAS.h>
 #include <ublox_msgs/EsfRAW.h>
@@ -250,6 +251,7 @@ static const uint8_t VER = MonVER::MESSAGE_ID;
 
 namespace ESF
 {
+static const uint8_t ALG = EsfALG::MESSAGE_ID;
 static const uint8_t INS = EsfINS::MESSAGE_ID;
 static const uint8_t MEAS = EsfMEAS::MESSAGE_ID;
 static const uint8_t RAW = EsfRAW::MESSAGE_ID;
