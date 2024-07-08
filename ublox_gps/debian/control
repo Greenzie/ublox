@@ -10,7 +10,8 @@ Build-Depends: debhelper (>= 9.0.0),
     ros-noetic-rtcm-msgs,
     ros-noetic-tf,
     ros-noetic-ublox-msgs,
-    ros-noetic-ublox-serialization
+    ros-noetic-ublox-serialization,
+    ros-noetic-nmea-msgs
 Homepage: http://ros.org/wiki/ublox
 Standards-Version: 3.9.2
 
@@ -24,5 +25,6 @@ Depends: ${shlibs:Depends},
     ros-noetic-rtcm-msgs,
     ros-noetic-tf,
     ros-noetic-ublox-msgs,
-    ros-noetic-ublox-serialization
+    ros-noetic-ublox-serialization,
+    ros-noetic-nmea-msgs
 Description: Driver for u-blox GPS devices.
