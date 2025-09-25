@@ -29,11 +29,13 @@
 #ifndef UBLOX_SERIALIZATION_H
 #define UBLOX_SERIALIZATION_H
 
-#include <ros/console.h>
 #include <stdint.h>
-#include <boost/call_traits.hpp>
-#include <vector>
+
 #include <algorithm>
+#include <vector>
+
+#include <boost/call_traits.hpp>
+#include <ros/console.h>
 
 #include "checksum.h"
 

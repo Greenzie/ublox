@@ -29,11 +29,11 @@
 #ifndef UBLOX_GPS_CALLBACK_H
 #define UBLOX_GPS_CALLBACK_H
 
-#include <ros/console.h>
-#include <ublox/serialization/ublox_msgs.h>
 #include <boost/format.hpp>
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
+#include <ros/console.h>
+#include <ublox/serialization/ublox_msgs.h>
 
 namespace ublox_gps
 {

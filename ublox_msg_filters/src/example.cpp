@@ -1,9 +1,10 @@
-#include "ros/ros.h"
 #include <message_filters/subscriber.h>
 #include <ublox_msg_filters/exact_time.h>
 #include <ublox_msgs/NavHPPOSLLH.h>
 #include <ublox_msgs/NavRELPOSNED9.h>
 #include <ublox_msgs/NavVELNED.h>
+
+#include "ros/ros.h"
 
 void callback(const ublox_msgs::NavHPPOSLLHConstPtr& msg1,
               const ublox_msgs::NavRELPOSNED9ConstPtr& msg2,

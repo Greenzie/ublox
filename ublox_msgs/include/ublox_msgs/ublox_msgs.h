@@ -29,43 +29,10 @@
 #ifndef UBLOX_MSGS_H
 #define UBLOX_MSGS_H
 
-#include <ublox_msgs/NavATT.h>
-#include <ublox_msgs/NavCLOCK.h>
-#include <ublox_msgs/NavDGPS.h>
-#include <ublox_msgs/NavDOP.h>
-#include <ublox_msgs/NavHPPOSECEF.h>
-#include <ublox_msgs/NavHPPOSLLH.h>
-#include <ublox_msgs/NavPOSECEF.h>
-#include <ublox_msgs/NavPOSLLH.h>
-#include <ublox_msgs/NavRELPOSNED.h>
-#include <ublox_msgs/NavRELPOSNED9.h>
-#include <ublox_msgs/NavSBAS.h>
-#include <ublox_msgs/NavSOL.h>
-#include <ublox_msgs/NavPVT.h>
-#include <ublox_msgs/NavPVT7.h>
-#include <ublox_msgs/NavSTATUS.h>
-#include <ublox_msgs/NavSAT.h>
-#include <ublox_msgs/NavSVIN.h>
-#include <ublox_msgs/NavSVINFO.h>
-#include <ublox_msgs/NavTIMEGPS.h>
-#include <ublox_msgs/NavTIMEUTC.h>
-#include <ublox_msgs/NavVELECEF.h>
-#include <ublox_msgs/NavVELNED.h>
-
-#include <ublox_msgs/RxmALM.h>
-#include <ublox_msgs/RxmEPH.h>
-#include <ublox_msgs/RxmRAW.h>
-#include <ublox_msgs/RxmRAW_SV.h>
-#include <ublox_msgs/RxmRAWX.h>
-#include <ublox_msgs/RxmRAWX_Meas.h>
-#include <ublox_msgs/RxmRTCM.h>
-#include <ublox_msgs/RxmSFRB.h>
-#include <ublox_msgs/RxmSFRBX.h>
-#include <ublox_msgs/RxmSVSI.h>
-
-#include <ublox_msgs/Inf.h>
 #include <ublox_msgs/Ack.h>
-
+#include <ublox_msgs/AidALM.h>
+#include <ublox_msgs/AidEPH.h>
+#include <ublox_msgs/AidHUI.h>
 #include <ublox_msgs/CfgANT.h>
 #include <ublox_msgs/CfgCFG.h>
 #include <ublox_msgs/CfgDAT.h>
@@ -86,30 +53,53 @@
 #include <ublox_msgs/CfgSBAS.h>
 #include <ublox_msgs/CfgTMODE3.h>
 #include <ublox_msgs/CfgUSB.h>
-
-#include <ublox_msgs/UpdSOS.h>
-#include <ublox_msgs/UpdSOS_Ack.h>
-
-#include <ublox_msgs/MonGNSS.h>
-#include <ublox_msgs/MonHW.h>
-#include <ublox_msgs/MonHW6.h>
-#include <ublox_msgs/MonVER.h>
-
-#include <ublox_msgs/AidALM.h>
-#include <ublox_msgs/AidEPH.h>
-#include <ublox_msgs/AidHUI.h>
-
 #include <ublox_msgs/EsfINS.h>
 #include <ublox_msgs/EsfMEAS.h>
 #include <ublox_msgs/EsfRAW.h>
 #include <ublox_msgs/EsfSTATUS.h>
 #include <ublox_msgs/EsfSTATUS_Sens.h>
-
-#include <ublox_msgs/MgaGAL.h>
-
 #include <ublox_msgs/HnrPVT.h>
-
+#include <ublox_msgs/Inf.h>
+#include <ublox_msgs/MgaGAL.h>
+#include <ublox_msgs/MonGNSS.h>
+#include <ublox_msgs/MonHW.h>
+#include <ublox_msgs/MonHW6.h>
+#include <ublox_msgs/MonVER.h>
+#include <ublox_msgs/NavATT.h>
+#include <ublox_msgs/NavCLOCK.h>
+#include <ublox_msgs/NavDGPS.h>
+#include <ublox_msgs/NavDOP.h>
+#include <ublox_msgs/NavHPPOSECEF.h>
+#include <ublox_msgs/NavHPPOSLLH.h>
+#include <ublox_msgs/NavPOSECEF.h>
+#include <ublox_msgs/NavPOSLLH.h>
+#include <ublox_msgs/NavPVT.h>
+#include <ublox_msgs/NavPVT7.h>
+#include <ublox_msgs/NavRELPOSNED.h>
+#include <ublox_msgs/NavRELPOSNED9.h>
+#include <ublox_msgs/NavSAT.h>
+#include <ublox_msgs/NavSBAS.h>
+#include <ublox_msgs/NavSOL.h>
+#include <ublox_msgs/NavSTATUS.h>
+#include <ublox_msgs/NavSVIN.h>
+#include <ublox_msgs/NavSVINFO.h>
+#include <ublox_msgs/NavTIMEGPS.h>
+#include <ublox_msgs/NavTIMEUTC.h>
+#include <ublox_msgs/NavVELECEF.h>
+#include <ublox_msgs/NavVELNED.h>
+#include <ublox_msgs/RxmALM.h>
+#include <ublox_msgs/RxmEPH.h>
+#include <ublox_msgs/RxmRAW.h>
+#include <ublox_msgs/RxmRAWX.h>
+#include <ublox_msgs/RxmRAWX_Meas.h>
+#include <ublox_msgs/RxmRAW_SV.h>
+#include <ublox_msgs/RxmRTCM.h>
+#include <ublox_msgs/RxmSFRB.h>
+#include <ublox_msgs/RxmSFRBX.h>
+#include <ublox_msgs/RxmSVSI.h>
 #include <ublox_msgs/TimTM2.h>
+#include <ublox_msgs/UpdSOS.h>
+#include <ublox_msgs/UpdSOS_Ack.h>
 
 namespace ublox_msgs
 {

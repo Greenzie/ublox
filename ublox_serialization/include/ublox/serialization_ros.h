@@ -29,10 +29,10 @@
 #ifndef UBLOX_SERIALIZATION_ROS_H
 #define UBLOX_SERIALIZATION_ROS_H
 
-#include "serialization.h"
-#include "checksum.h"
-
 #include <ros/serialization.h>
+
+#include "checksum.h"
+#include "serialization.h"
 
 namespace ublox
 {

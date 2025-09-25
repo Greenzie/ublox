@@ -28,9 +28,10 @@
 //==============================================================================
 
 #include "ublox_gps/node.h"
+
 #include <cmath>
-#include <string>
 #include <sstream>
+#include <string>
 
 using namespace ublox_node;
 
@@ -378,8 +379,7 @@ void UbloxNode::initializeRosDiagnostics()
     components_[i]->initializeRosDiagnostics();
 }
 
-bool UbloxNode::getVersionInfo(ublox_msgs::GetVersionInfo::Request  &req,
-         ublox_msgs::GetVersionInfo::Response &res)
+bool UbloxNode::getVersionInfo(ublox_msgs::GetVersionInfo::Request& req, ublox_msgs::GetVersionInfo::Response& res)
 {
   ublox_msgs::MonVER monVer;
   if (!gps.poll(monVer))
@@ -402,7 +402,8 @@ bool UbloxNode::getVersionInfo(ublox_msgs::GetVersionInfo::Request  &req,
   }
 
   // Get rest of version info
-  // Up to 2nd to last line, b.c. last 1-2 lines contain config support info like "GPS;GLO;GAL;BDS" and "SBAS;QZSS"
+  // Up to 2nd to last line, b.c. last 1-2 lines contain config support info like "GPS;GLO;GAL;BDS"
+  // and "SBAS;QZSS"
   for (std::size_t i = 0; i < extension.size() - 2; ++i)
   {
     // parse formatted strings
@@ -414,15 +415,15 @@ bool UbloxNode::getVersionInfo(ublox_msgs::GetVersionInfo::Request  &req,
       {
         // protocol_version < 18 may not include the rest of the version info
         // see UbloxNode::processMonVer() for inferred version-info difference
-        res.protocol = strs[1]; 
+        res.protocol = strs[1];
       }
       else if (strs[0].compare(std::string("FWVER")) == 0)
       {
-        res.firmware = strs[1]; 
+        res.firmware = strs[1];
       }
       else if (strs[0].compare(std::string("MOD")) == 0)
       {
-        res.device_model = strs[1]; 
+        res.device_model = strs[1];
       }
     }
   }
@@ -1526,7 +1527,8 @@ void AdrUdrProduct::callbackEsfMEAS(const ublox_msgs::EsfMEAS& m)
       // t_ref_.header.stamp = ros::Time::now();
       // t_ref_.header.frame_id = frame_id;
 
-      // t_ref_.time_ref = ros::Time((m.wnR * 604800 + m.towMsR / 1000), (m.towMsR % 1000) * 1000000 + m.towSubMsR);
+      // t_ref_.time_ref = ros::Time((m.wnR * 604800 + m.towMsR / 1000), (m.towMsR % 1000) * 1000000
+      // + m.towSubMsR);
 
       // std::ostringstream src;
       // src << "TIM" << int(m.ch);
@@ -1935,8 +1937,9 @@ void HpPosRecProduct::callbackNavRelPosNed(const ublox_msgs::NavRELPOSNED9& m)
     imu_.linear_acceleration_covariance[0] = -1;
     imu_.angular_velocity_covariance[0] = -1;
 
-    // Transform angle since ublox is representing heading as NED but ROS uses ENU as convention (REP-103).
-    // Also convert the base-to-rover angle to a robot-to-base angle (consistent with frame_id)
+    // Transform angle since ublox is representing heading as NED but ROS uses ENU as convention
+    // (REP-103). Also convert the base-to-rover angle to a robot-to-base angle (consistent with
+    // frame_id)
     double heading = -(static_cast<double>(m.relPosHeading) * 1e-5 / 180.0 * M_PI) - M_PI_2;
     tf::Quaternion orientation;
     orientation.setRPY(0, 0, heading);
