@@ -36,9 +36,9 @@
 #define UBLOX_RAW_DATA_PA_H
 
 // STL
-#include <vector>
-#include <set>
 #include <fstream>
+#include <set>
+#include <vector>
 
 // ROS includes
 #include <ros/ros.h>

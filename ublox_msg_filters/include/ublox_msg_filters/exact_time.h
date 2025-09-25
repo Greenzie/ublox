@@ -35,30 +35,28 @@
 #ifndef UBLOX_MSG_FILTERS_EXACT_TIME_H
 #define UBLOX_MSG_FILTERS_EXACT_TIME_H
 
-#include "message_filters/synchronizer.h"
+#include <deque>
+#include <string>
+#include <vector>
+
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/mpl/at.hpp>
+#include <boost/mpl/or.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <ros/assert.h>
+#include <ros/message_event.h>
+#include <ros/message_traits.h>
+
 #include "message_filters/connection.h"
 #include "message_filters/null_types.h"
 #include "message_filters/signal9.h"
-
-#include <boost/tuple/tuple.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
-#include <boost/thread/mutex.hpp>
-
-#include <boost/bind.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/noncopyable.hpp>
-#include <boost/mpl/or.hpp>
-#include <boost/mpl/at.hpp>
-#include <boost/mpl/vector.hpp>
-
-#include <ros/assert.h>
-#include <ros/message_traits.h>
-#include <ros/message_event.h>
-
-#include <deque>
-#include <vector>
-#include <string>
+#include "message_filters/synchronizer.h"
 
 namespace ublox_msg_filters
 {

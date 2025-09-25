@@ -31,35 +31,34 @@
 #define UBLOX_GPS_NODE_H
 
 // STL
-#include <vector>
 #include <set>
+#include <vector>
 // Boost
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 // ROS includes
-#include <ros/ros.h>
-#include <ros/console.h>
-#include <ros/serialization.h>
-#include <tf/transform_datatypes.h>
 #include <diagnostic_updater/diagnostic_updater.h>
 #include <diagnostic_updater/publisher.h>
+#include <ros/console.h>
+#include <ros/ros.h>
+#include <ros/serialization.h>
+#include <tf/transform_datatypes.h>
 // ROS messages
 #include <geometry_msgs/TwistWithCovarianceStamped.h>
 #include <geometry_msgs/Vector3Stamped.h>
+#include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/TimeReference.h>
-#include <sensor_msgs/Imu.h>
 #include <std_msgs/UInt8MultiArray.h>
 // Other U-Blox package includes
-#include <ublox_msgs/ublox_msgs.h>
 #include <ublox_msgs/GetVersionInfo.h>
+#include <ublox_msgs/ublox_msgs.h>
 // Ublox GPS includes
-#include <ublox_gps/gps.h>
-#include <ublox_gps/utils.h>
-#include <ublox_gps/raw_data_pa.h>
-
 #include <rtcm_msgs/Message.h>
+#include <ublox_gps/gps.h>
+#include <ublox_gps/raw_data_pa.h>
+#include <ublox_gps/utils.h>
 
 // This file declares the ComponentInterface which acts as a high level
 // interface for u-blox firmware, product categories, etc. It contains methods
@@ -551,10 +550,9 @@ public:
   void printInf(const ublox_msgs::Inf& m, uint8_t id);
 
   /**
-   * @brief A ROS service that helps developers reliably get version info from the ublox device. 
+   * @brief A ROS service that helps developers reliably get version info from the ublox device.
    */
-  bool getVersionInfo(ublox_msgs::GetVersionInfo::Request  &req,
-         ublox_msgs::GetVersionInfo::Response &res);
+  bool getVersionInfo(ublox_msgs::GetVersionInfo::Request& req, ublox_msgs::GetVersionInfo::Response& res);
 
 private:
   /**
