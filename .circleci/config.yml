@@ -23,6 +23,7 @@ workflows:
       # Build jobs
       - greenzie/debian_build:
           name: "amd_debian_build"
+          context: GREENZIE
           platform: amd64
           executor: greenzie/debianize_amd64
 
@@ -42,6 +43,7 @@ workflows:
     jobs:
       - greenzie/debian_build:
           name: "amd_debian_build"
+          context: GREENZIE
           platform: amd64
           executor: greenzie/debianize_amd64
 
