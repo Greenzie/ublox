@@ -4,11 +4,6 @@ orbs:
   greenzie: greenzie/build_and_publish_debs@0.2.0
 
 parameters:
-  # Use this parameter to change the branch that the deployment jobs are triggered on
-  # It's useful for testing the deployment jobs on a different branch before merging
-  filter-branch:
-    type: string
-    default: noetic
   manual_deploy:
     description: "Trigger a manual amd64 deploy to greenzie-experimental"
     type: boolean
@@ -26,17 +21,6 @@ workflows:
           context: GREENZIE
           platform: amd64
           executor: greenzie/debianize_amd64
-
-      # Deployment jobs
-      - greenzie/debian_deploy_experimental:
-          name: "deploy_amd64_greenzie"
-          context: GREENZIE
-          filters:
-            branches:
-              only:
-                - << pipeline.parameters.filter-branch >>
-          requires:
-            - amd_debian_build
 
   manualdeploy:
     when: << pipeline.parameters.manual_deploy >>
