@@ -1,59 +1,31 @@
 version: 2.1
 
-# NOTE: ARM64 build and deployment are intentionally disabled until we fix this error
-# ################################################################################ Debianization ################################################################################
-################################################################################################################################################################################
-#Package: 'ublox'
-# - Build Depends.................................................................................... [SUCCESS] (6.829 seconds)
-# - Build............................................................................................ [SUCCESS] (5.537 seconds)
-# - Install.......................................................................................... [FAILED] (1.793 seconds)
-#Error Below:
-#################################################################################### STDOUT ####################################################################################
-#Reading package lists...
-#Building dependency tree...
-#Reading state information...
-#Some packages could not be installed. This may mean that you have
-#requested an impossible situation or if you are using the unstable
-#distribution that some required packages have not yet been created
-#or been moved out of Incoming.
-#The following information may help to resolve the situation:
-#
-#The following packages have unmet dependencies:
-# ros-noetic-ublox : Depends: ros-noetic-ublox-msg-filters but it is not installable
-#################################################################################### STDERR ####################################################################################
-#E: Unable to correct problems, you have held broken packages.
-################################################################################################################################################################################
-#CalledProcessError | Command 'apt-get install -y --allow-downgrades -o "DPkg::Lock::Timeout=-1" ./*ublox*.deb' returned non-zero exit status 100.
-
-
 orbs:
-  greenzie: greenzie/build_and_publish_debs@volatile
+  greenzie: greenzie/build_and_publish_debs@0.2.0
 
 parameters:
-  manual-bobcat-deploy:
-    type: boolean
-    default: false
   # Use this parameter to change the branch that the deployment jobs are triggered on
   # It's useful for testing the deployment jobs on a different branch before merging
   filter-branch:
     type: string
     default: noetic
+  manual_deploy:
+    description: "Trigger a manual amd64 deploy to greenzie-experimental"
+    type: boolean
+    default: false
 
 workflows:
   version: 2
   pushbuild:
-    unless: << pipeline.parameters.manual-bobcat-deploy >>
+    when:
+      not: << pipeline.parameters.manual_deploy >>
     jobs:
       # Build jobs
       - greenzie/debian_build:
           name: "amd_debian_build"
+          context: GREENZIE
           platform: amd64
           executor: greenzie/debianize_amd64
-
-#      - greenzie/debian_build:
-#          name: "arm64_debian_build"
-#          platform: arm64
-#          executor: greenzie/debianize_arm64
 
       # Deployment jobs
       - greenzie/debian_deploy_experimental:
@@ -66,47 +38,17 @@ workflows:
           requires:
             - amd_debian_build
 
-#      - greenzie/debian_deploy_experimental:
-#          name: "deploy_arm64_greenzie"
-#          context: GREENZIE
-#          architecture: arm64
-#          filters:
-#            branches:
-#              only:
-#                - << pipeline.parameters.filter-branch >>
-#          requires:
-#            - arm64_debian_build
-
-      - greenzie/debian_deploy_experimental:
-          name: "deploy_all_bobcat"
-          context: GREENZIE
-          server_hostname: bobcat
-          filters:
-            branches:
-              only:
-                - << pipeline.parameters.filter-branch >>
-          requires:
-#            - arm64_debian_build
-            - amd_debian_build
-  
   manualdeploy:
-    when: << pipeline.parameters.manual-bobcat-deploy >>
+    when: << pipeline.parameters.manual_deploy >>
     jobs:
-      # Build jobs
       - greenzie/debian_build:
           name: "amd_debian_build"
+          context: GREENZIE
           platform: amd64
           executor: greenzie/debianize_amd64
 
-#      - greenzie/debian_build:
-#          name: "arm64_debian_build"
-#          platform: arm64
-#          executor: greenzie/debianize_arm64
-
-      - greenzie/debian_deploy_experimental:
+      - greenzie/debian_deploy_experimental_ssh:
+          name: "deploy_amd64_greenzie"
           context: GREENZIE
-          name: "manual_deploy_all_bobcat"
-          server_hostname: bobcat
           requires:
-#            - arm64_debian_build
             - amd_debian_build
